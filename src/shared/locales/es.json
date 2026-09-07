@@ -1,0 +1,216 @@
+{
+  "nav": { 
+    "dashboard": "Dashboard", 
+    "stands": "Stands" 
+  },
+
+  "home": { 
+    "title": "Inicio", 
+    "msg": "Bienvenido a NextHappen",
+    "eventsPage": {
+      "title": "Eventos disponibles",
+      "noEvents": "No hay eventos disponibles",
+      "alerts": {
+        "saved": "Evento guardado correctamente",
+        "alreadySaved": "Este evento ya está guardado",
+        "error": "Error al guardar el evento"
+      }
+    }
+  },
+
+  "entrepreneur": {
+    "title": "Panel de organizador",
+    "summary": "Resumen de tus ferias",
+    "fairTitle": "Feria de Artesanías de Primavera",
+    "fairDates": "15 de mayo - 17 de mayo",
+    "views": "Visualizaciones",
+    "saved": "Guardados",
+    "create": "Crear evento"
+  },
+
+  "common": {
+    "all": "Todas",
+    "save": "Guardar",
+    "update": "Actualizar",
+    "cancel": "Cancelar"
+  },
+
+  "stands": {
+    "title": "Registro de Stands",
+    "desc": "Agrega y gestiona los emprendedores y sus perfiles dentro de una feria específica.",
+    "selectFair": "Seleccionar Feria",
+    "chooseFair": "Elige una feria",
+    "addEntrepreneur": "Agregar Emprendedor",
+    "fair": "Feria",
+    "name": "Nombre",
+    "category": "Categoría",
+    "stand": "Stand",
+    "actions": "Acciones",
+    "edit": "Editar",
+    "delete": "Borrar",
+    "newTitle": "Nuevo Stand",
+    "editTitle": "Editar Stand",
+    "errors": {
+      "nameRequired": "Nombre es obligatorio.",
+      "categoryRequired": "Seleccione una categoría.",
+      "noFairForCategory": "No hay una feria asociada a esta categoría aún."
+    }
+  },
+
+  "header": {
+    "logo": "NextHappen",
+    "nav": {
+      "home": "Inicio",
+      "events": "Eventos",
+      "explore": "Explorar",
+      "tickets": "Entradas",
+      "following": "Siguiendo"
+    },
+    "search": { "placeholder": "Buscar" },
+    "signup": "Registrarse"
+  },
+
+  "createEvent": {
+    "titlePage": "Publicar Feria",
+    "fields": {
+      "orgName": "Nombre de la organización",
+      "orgPlaceholder": "Pon el nombre de tu organización o tu nombre",
+      "title": "Título",
+      "titlePlaceholder": "Nombre de la feria",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Describe brevemente la feria",
+      "price": "Precio",
+      "pricePlaceholder": "Ej: Gratis, 10 USD, etc.",
+      "category": "Categoría",
+      "categoryPlaceholder": "Selecciona una categoría",
+      "quantity": "Cantidad",
+      "quantityPlaceholder": "Ej: Ilimitado, 100, etc.",
+      "photos": "Fotos",
+      "dragText": "Arrastra tus fotos aquí o haz clic para seleccionarlas",
+      "address": "Buscar dirección",
+      "addressPlaceholder": "Ej: Av. Arequipa 1234, Lima",
+      "location": "Ubicación",
+      "dates": "Fechas"
+    },
+    "buttons": {
+      "selectPhotos": "Seleccionar Fotos",
+      "search": "Buscar",
+      "publish": "Publicar"
+    },
+    "messages": {
+      "successTitle": "Evento publicado",
+      "errorTitle": "Error al publicar",
+      "warningTitle": "Campos requeridos",
+      "addressErrorTitle": "Dirección no encontrada",
+      "success": "Tu evento fue publicado exitosamente.",
+      "error": "Ocurrió un error al publicar tu evento. Intenta nuevamente.",
+      "missingFields": "Por favor completa todos los campos obligatorios antes de publicar.",
+      "addressNotFound": "No se encontró la dirección ingresada. Verifica e intenta de nuevo.",
+      "addressRequired": "Por favor ingresa una dirección antes de buscar."
+    },
+    "mapMarker": "📍"
+  },
+
+  "myFairs": {
+    "title": "Mis ferias publicadas",
+    "startDate": "Fecha Inicio",
+    "endDate": "Fecha Fin",
+    "columns": {
+      "image": "Imagen",
+      "org": "Organización",
+      "name": "Nombre",
+      "category": "Categoría",
+      "price": "Precio",
+      "quantity": "Cantidad",
+      "status": "Estado",
+      "date": "Fecha",
+      "location": "Ubicación",
+      "actions": "Acciones"
+    },
+    "noImage": "Sin imagen",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "errors": { "load": "Error al cargar eventos" },
+    "editDialog": { "title": "Editar publicación" }
+  },
+
+  "organizerHeader": {
+    "logo": "NextHappen",
+    "nav": {
+      "dashboard": "Panel",
+      "stands": "Stands",
+      "createEvent": "Crear Evento",
+      "events": "Eventos"
+    }
+  },
+
+  "saved": {
+    "title": "Eventos guardados",
+    "emptyTitle": "Aún no tienes eventos guardados",
+    "emptyDesc": "Explora los eventos y toca el botón de guardar para guardarlos más tarde.",
+    "explore": "Explorar"
+  },
+
+  "metrics": {
+    "title": "Métricas de mis eventos",
+    "desc": "Selecciona uno de tus eventos para ver sus métricas de visualización y guardado.",
+    "selectEvent": "Selecciona un evento",
+    "views": "Visualizaciones",
+    "saves": "Guardados",
+    "noEventSelected": "Selecciona un evento para visualizar sus métrricas.",
+    "table": {
+      "timestamp": "Fecha y Hora",
+      "action": "Acción"
+    }
+  },
+
+  "signup": {
+    "title": "Crear cuenta",
+    "subtitle": "Regístrate para comenzar a explorar eventos.",
+    "name": "Nombre completo",
+    "namePlaceholder": "Ingresa tu nombre",
+    "email": "Correo electrónico",
+    "emailPlaceholder": "tu{'@'}correo.com",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Mínimo 6 caracteres",
+    "create": "Crear cuenta",
+    "creating": "Creando cuenta...",
+    "already": "¿Ya tienes cuenta?",
+    "signin": "Inicia sesión",
+    "error": "Ocurrió un error al crear la cuenta.",
+    "fillAll": "Por favor completa todos los campos.",
+    "userTypeTitle": "Selecciona tu tipo de cuenta",
+    "user": "Usuario",
+    "organizer": "Organizador"
+  },
+
+  "signin": {
+    "title": "Inicia sesión",
+    "subtitle": "Inicia sesión para seguir explorando nuevos eventos.",
+    "name": "Nombre completo",
+    "namePlaceholder": "Ingresa tu nombre",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "button": "Iniciar sesión",
+    "loading": "Iniciando sesión...",
+    "noAccount": "¿Aún no tienes cuenta?",
+    "create": "Crear cuenta",
+    "error": "Ocurrió un error al iniciar sesión.",
+    "fillAll": "Por favor completa todos los campos.",
+    "selectType": "Selecciona tu tipo de cuenta",
+    "user": "Usuario",
+    "organizer": "Organizador"
+  },
+
+  "profile": {
+    "title": "Mi Perfil",
+    "subtitle": "Administra tu información personal",
+    "name": "Nombre completo",
+    "email": "Correo electrónico",
+    "changePhoto": "Haz clic para cambiar la foto",
+    "save": "Guardar cambios",
+    "logout": "Cerrar sesión",
+    "fillFields": "Por favor completa todos los campos.",
+    "saved": "Perfil actualizado correctamente."
+  }
+}

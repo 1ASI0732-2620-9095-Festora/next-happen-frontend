@@ -1,0 +1,217 @@
+/* ============================================================
+   NextHappen — Retro / Neubrutalist design system
+   Tokens + utilities. Preserves the existing identity
+   (yellow #ffcd00, hard black borders + offset shadows)
+   and standardizes it into a cohesive, state-rich system.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ── Ink & surfaces ── */
+  --r-ink: #1b1a17;          /* borders + primary text (warm near-black) */
+  --r-ink-soft: #55514a;     /* secondary text — 7.4:1 on paper ✓ */
+  --r-ink-faint: #8a857c;    /* tertiary/meta only (never body copy) */
+  --r-bg: #fff9ec;           /* warm paper page background (existing identity) */
+  --r-surface: #ffffff;      /* cards */
+  --r-surface-2: #fffbe8;    /* tinted panels */
+  --r-surface-3: #fff3d1;    /* deeper tint / headers */
+
+  /* ── Brand + semantic states (flat, bold) ── */
+  --r-brand: #ffcd00;        /* primary yellow */
+  --r-brand-2: #ffd84d;
+  --r-brand-ink: #1b1a17;    /* text on yellow — 13:1 ✓ */
+  --r-amber: #f59e0b;        /* hover accent (existing) */
+  --r-coral: #ff5a36;        /* energy / secondary accent */
+  --r-violet: #6c5ce7;       /* reviews / accent */
+  --r-success: #0f9d58;      /* validated / paid */
+  --r-success-bg: #d7f5e3;
+  --r-danger: #e02424;       /* refund / error */
+  --r-danger-bg: #ffe1dd;
+  --r-star: #ffb703;
+
+  /* ── Shadows (solid ink, offset) ── */
+  --r-sh-1: 2px 2px 0 var(--r-ink);
+  --r-sh-2: 4px 4px 0 var(--r-ink);
+  --r-sh-3: 6px 6px 0 var(--r-ink);
+  --r-sh-pop: 8px 8px 0 var(--r-ink);
+
+  /* ── Borders ── */
+  --r-bd: 2px solid var(--r-ink);
+  --r-bd-3: 3px solid var(--r-ink);
+
+  /* ── Type ── */
+  --r-font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --r-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --r-font-mono: 'Space Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* ── Motion ── */
+  --r-ease: cubic-bezier(0.2, 0.85, 0.25, 1);
+  --r-dur: 150ms;
+
+  /* ── Z-index scale ── */
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-modal-backdrop: 1200;
+  --z-modal: 1300;
+  --z-toast: 1400;
+}
+
+/* ── Page canvas: warm paper + faint dot grid (retro graph-paper) ── */
+body {
+  background-color: var(--r-bg);
+  background-image: radial-gradient(rgba(27, 26, 23, 0.05) 1.4px, transparent 1.4px);
+  background-size: 22px 22px;
+  background-attachment: fixed;
+  color: var(--r-ink);
+  font-family: var(--r-font-body);
+}
+
+/* Display headings get the grotesk face + tight tracking */
+.r-display,
+.r-page-title {
+  font-family: var(--r-font-display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  color: var(--r-ink);
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+
+/* Surface / card */
+.r-card {
+  background: var(--r-surface);
+  border: var(--r-bd);
+  box-shadow: var(--r-sh-2);
+}
+
+/* Kicker label (mono, boxed) — a deliberate brand device, used sparingly */
+.r-kicker {
+  display: inline-block;
+  font-family: var(--r-font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border: var(--r-bd);
+  background: var(--r-brand);
+  color: var(--r-brand-ink);
+  box-shadow: var(--r-sh-1);
+}
+
+/* Status badge */
+.r-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--r-font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: var(--r-bd);
+  background: var(--r-surface);
+  white-space: nowrap;
+}
+.r-badge--brand   { background: var(--r-brand); }
+.r-badge--success { background: var(--r-success-bg); color: #0a5c34; }
+.r-badge--danger  { background: var(--r-danger-bg);  color: #8a1414; }
+.r-badge--muted   { background: #ececec; color: var(--r-ink-soft); }
+
+/* ── Buttons with tactile "press" physics ── */
+.r-btn {
+  --btn-bg: var(--r-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--r-font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 11px 18px;
+  border: var(--r-bd);
+  background: var(--btn-bg);
+  color: var(--r-ink);
+  box-shadow: var(--r-sh-2);
+  cursor: pointer;
+  transition: transform var(--r-dur) var(--r-ease),
+              box-shadow var(--r-dur) var(--r-ease),
+              background-color var(--r-dur) var(--r-ease);
+}
+.r-btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--r-sh-3);
+}
+.r-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--r-ink);
+}
+.r-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: var(--r-sh-1);
+  transform: none;
+}
+.r-btn--primary { --btn-bg: var(--r-brand); }
+.r-btn--coral   { --btn-bg: var(--r-coral); color: #fff; }
+.r-btn--danger  { --btn-bg: var(--r-danger); color: #fff; }
+.r-btn--ghost   { --btn-bg: var(--r-surface); }
+.r-btn--lg { padding: 14px 26px; font-size: 1.05rem; }
+
+/* ── Inputs ── */
+.r-input {
+  width: 100%;
+  border: var(--r-bd);
+  background: var(--r-surface);
+  box-shadow: var(--r-sh-1);
+  padding: 11px 12px;
+  font-family: var(--r-font-body);
+  font-size: 0.95rem;
+  color: var(--r-ink);
+  transition: box-shadow var(--r-dur) var(--r-ease);
+}
+.r-input:focus {
+  outline: none;
+  box-shadow: var(--r-sh-2);
+}
+
+/* ── Focus-visible ring (accessibility + state) ── */
+.r-btn:focus-visible,
+.r-input:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--r-violet);
+  outline-offset: 2px;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .r-btn,
+  .r-input {
+    transition: none;
+  }
+  .r-btn:hover:not(:disabled),
+  .r-btn:active:not(:disabled) {
+    transform: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Shared entrance (used deliberately, not on every element) ── */
+@keyframes r-pop-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.r-pop-in {
+  animation: r-pop-in 340ms var(--r-ease) both;
+}

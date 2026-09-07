@@ -1,0 +1,205 @@
+{
+  "nav": { "dashboard": "Dashboard", "stands": "Stands" },
+  "home": { 
+    "title": "Home", 
+    "msg": "Welcome to NextHappen",
+    "eventsPage": {
+      "title": "Available Events",
+      "noEvents": "No events available",
+      "alerts": {
+        "saved": "Event saved successfully",
+        "alreadySaved": "This event is already saved",
+        "error": "Error saving the event"
+      }
+    }
+  },
+  "entrepreneur": {
+    "title": "Organizer panel",
+    "summary": "Your fairs summary",
+    "fairTitle": "Spring Handcrafts Fair",
+    "fairDates": "May 15 – May 17",
+    "views": "Views",
+    "saved": "Saved",
+    "create": "Create event"
+  },
+  "common": { "all": "All", "save": "Save", "update": "Update", "cancel": "Cancel" },
+
+  "stands": {
+    "title": "Register Stands",
+    "desc": "Add and manage entrepreneurs and their profiles within a specific fair.",
+    "selectFair": "Select Fair",
+    "chooseFair": "Choose a fair",
+    "addEntrepreneur": "Add Entrepreneur",
+    "fair": "Fair",
+    "name": "Name",
+    "category": "Category",
+    "stand": "Stand",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "newTitle": "New Stand",
+    "editTitle": "Edit Stand",
+    "errors": {
+      "nameRequired": "Name is required.",
+      "categoryRequired": "Select a category.",
+      "noFairForCategory": "There is no fair associated with this category yet."
+    }
+  },
+
+  "header": {
+    "logo": "NextHappen",
+    "nav": {
+      "home": "Home",
+      "events": "Events",
+      "explore": "Explore",
+      "tickets": "Tickets",
+      "following": "Following"
+    },
+    "search": { "placeholder": "Search" },
+    "signup": "Sign Up"
+  },
+
+  "createEvent": {
+    "titlePage": "Publish Fair",
+    "fields": {
+      "orgName": "Organization Name",
+      "orgPlaceholder": "Put your organization or your name",
+      "title": "Title",
+      "titlePlaceholder": "Fair name",
+      "description": "Description",
+      "descriptionPlaceholder": "Briefly describe the fair",
+      "price": "Price",
+      "pricePlaceholder": "E.g.: Free, 10 USD, etc.",
+      "quantity": "Quantity",
+      "quantityPlaceholder": "E.g.: Unlimited, 100, etc.",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "photos": "Photos",
+      "dragText": "Drag your photos here or click to select them",
+      "address": "Search address",
+      "addressPlaceholder": "E.g.: 1234 Arequipa Ave, Lima",
+      "location": "Location",
+      "dates": "Dates"
+    },
+    "buttons": {
+      "selectPhotos": "Select Photos",
+      "search": "Search",
+      "publish": "Publish"
+    },
+    "messages": {
+      "successTitle": "Event Published",
+      "errorTitle": "Publish Error",
+      "warningTitle": "Required Fields",
+      "addressErrorTitle": "Address Not Found",
+      "success": "Your event was successfully published.",
+      "error": "An error occurred while publishing your event. Please try again.",
+      "missingFields": "Please fill in all required fields before publishing.",
+      "addressNotFound": "The entered address could not be found. Please check and try again.",
+      "addressRequired": "Please enter an address before searching."
+    },
+    "mapMarker": "📍"
+  },
+
+  "myFairs": {
+    "title": "My Published Fairs",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "columns": {
+      "image": "Image",
+      "org": "Organization",
+      "name": "Name",
+      "category": "Category",
+      "price": "Price",
+      "quantity": "Quantity",
+      "status": "Status",
+      "date": "Date",
+      "location": "Location",
+      "actions": "Actions"
+    },
+    "noImage": "No image",
+    "edit": "Edit",
+    "delete": "Delete",
+    "errors": { "load": "Error loading events" },
+    "editDialog": { "title": "Edit publishment" }
+  },
+
+  "organizerHeader": {
+    "logo": "NextHappen",
+    "nav": {
+      "dashboard": "Dashboard",
+      "stands": "Stands",
+      "createEvent": "Create Event",
+      "events": "Events"
+    }
+  },
+
+  "saved": {
+    "title": "Saved Events",
+    "emptyTitle": "No saved events yet",
+    "emptyDesc": "Explore events and tap the save bottom to save them for later.",
+    "explore": "Explore"
+  },
+
+  "metrics": {
+    "title": "My Event Metrics",
+    "desc": "Select one of your events to view its view and save statistics.",
+    "selectEvent": "Select an event",
+    "views": "Views",
+    "saves": "Saves",
+    "noEventSelected": "Select an event to view its metrics.",
+    "table": {
+      "timestamp": "Date & Time",
+      "action": "Action"
+    }
+  },
+
+  "signup": {
+    "title": "Create Account",
+    "subtitle": "Sign up to start exploring events.",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email Address",
+    "emailPlaceholder": "your{'@'}email.com",
+    "password": "Password",
+    "passwordPlaceholder": "Minimum 6 characters",
+    "create": "Sign Up",
+    "creating": "Creating account...",
+    "already": "Already have an account?",
+    "signin": "Sign in",
+    "error": "An error occurred while creating your account.",
+    "fillAll": "Please fill in all fields.",
+    "userTypeTitle": "Select your account type",
+    "user": "User",
+    "organizer": "Organizer"
+  },
+
+  "signin": {
+    "title": "Sign In",
+    "subtitle": "Sign in to keep exploring new events.",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your name",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "button": "Sign In",
+    "loading": "Signing in...",
+    "noAccount": "Don’t have an account?",
+    "create": "Create Account",
+    "error": "An error occurred while signing in.",
+    "fillAll": "Please fill in all fields.",
+    "selectType": "Select your account type",
+    "user": "User",
+    "organizer": "Organizer"
+  },
+
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information",
+    "name": "Full Name",
+    "email": "Email Address",
+    "changePhoto": "Click to change photo",
+    "save": "Save Changes",
+    "logout": "Log Out",
+    "fillFields": "Please fill in all fields.",
+    "saved": "Profile updated successfully."
+  }
+}

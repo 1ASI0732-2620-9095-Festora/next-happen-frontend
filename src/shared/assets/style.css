@@ -1,0 +1,370 @@
+/* === DIALOGS === */
+.p-dialog {
+  border: 2px solid #333;
+  background-color: #fff7ed;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2);
+  padding: 1rem;
+  overflow-y: auto !important;
+  max-height: 90vh;
+}
+
+.p-dialog-footer {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 1.5rem;
+}
+
+.p-dialog-header {
+  display: flex !important;
+  justify-content: right !important;
+  align-items: center !important;
+}
+
+.p-dialog-header-icon.p-dialog-header-close.p-link {
+  border: 2px solid #333 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2) !important;
+  background-color: #d32f2f;
+}
+
+.p-dialog-header-icon.p-dialog-header-close.p-link:hover {
+  border: 2px solid #d32f2f !important;
+  box-shadow: none !important; 
+  color: #d32f2f;
+  background-color: #fff7ed;
+  cursor: pointer;
+}
+
+.p-dialog-mask {
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(2px);
+  transition: background-color 0.3s ease;
+}
+
+.p-dialog-mask.p-component-overlay {
+  z-index: 2000 !important;
+}
+
+
+/* === DATEPICKER === */
+.p-datepicker {
+  position: absolute !important;
+  border: 2px solid #333 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2);
+  background-color: #fffdf8 !important;
+  font-family: 'Inter', sans-serif;
+  z-index: 9999 !important;
+}
+
+.p-datepicker-header {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  background: #fff7ed !important;
+  border-bottom: 2px solid #333 !important;
+  font-weight: bold !important;
+  color: #333 !important;
+  text-transform: uppercase;
+  gap: 1rem !important;
+  padding: 0.5rem 0 !important;
+}
+
+.p-datepicker-year,
+.p-datepicker-month {
+  color: #333 !important;
+  border: 2px solid #333 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2);
+  background-color: #ffcd00;
+  font-weight: bold !important;
+  margin: 0 6px;
+}
+
+.p-datepicker-year:hover,
+.p-datepicker-month:hover {
+  color: #ffcd00 !important;
+  border-color: #f59e0b !important;
+  background-color: #fff7ed;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.p-datepicker-prev,
+.p-datepicker-next {
+  color: #333 !important;
+  border: 2px solid #333 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2);
+  background-color: #ffcd00;
+}
+
+.p-datepicker-prev:hover,
+.p-datepicker-next:hover {
+  color: #ffcd00 !important;
+  border-color: #f59e0b !important;
+  background-color: #fff7ed;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.p-monthpicker-month,
+.p-yearpicker-year {
+  transition: all 0.15s ease;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p-monthpicker-month:hover,
+.p-yearpicker-year:hover {
+  background-color: #facc15 !important;
+  cursor: pointer;
+}
+
+.p-datepicker-calendar {
+  margin: 0 auto !important;
+}
+
+.p-datepicker table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  text-align: center !important;
+}
+
+.p-datepicker td > span {
+  transition: all 0.15s ease;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.p-datepicker td > span:hover {
+  background-color: #facc15 !important;
+  color: #000 !important;
+  transform: scale(1.1);
+  cursor: pointer;
+  align-items: center;
+}
+
+.p-datepicker .p-highlight {
+  background-color: #facc15 !important;
+  color: #000 !important;
+  font-weight: bold !important;
+  align-items: center;
+}
+
+
+/* === INPUT NUMBER === */
+.p-inputnumber-input {
+  border: 2px solid #333 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2) !important;
+  height: 38px !important;
+  font-size: 0.95rem !important;
+  width: 100% !important;
+}
+
+
+/* === CASCADE SELECT === */
+.p-cascadeselect {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  border: 2px solid #333 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2) !important;
+  background-color: #fff !important;
+  height: 40px !important;
+  position: relative !important;
+}
+
+.p-cascadeselect-label {
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 0.95rem !important;
+  padding: 0 2rem 0 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.p-cascadeselect-trigger {
+  right: 0.5rem !important;
+  display: flex !important;
+  background-color: #ffcd00 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  height: 100% !important;
+  width: 2rem !important;
+  border-left: 2px solid #333 !important;
+}
+
+.p-cascadeselect-trigger:hover {
+  background-color: #fff7ed !important;
+  color: #f59e0b !important;
+  border-color: #f59e0b !important;
+}
+
+.p-cascadeselect-panel {
+  border: 2px solid #333 !important;
+  background-color: #fffdf8 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2) !important;
+  padding: 1rem !important;
+  overflow: hidden !important;
+  list-style: none;
+}
+
+.p-cascadeselect-item {
+  padding: 0.6rem 0.8rem !important;
+  font-size: 0.9rem !important;
+  border-radius: 4px !important;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.p-cascadeselect-item:hover {
+  background-color: #ffef99 !important;
+  transform: translateX(2px);
+  cursor: pointer;
+}
+
+.p-cascadeselect-item .p-cascadeselect-item-icon {
+  color: #333 !important;
+}
+
+.p-cascadeselect-list,
+.p-cascadeselect-sublist {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+
+/* === DATATABLE === */
+.p-datatable .p-datatable-thead > tr > th {
+  border: 2px solid #333;
+  font-size: 0.95rem;
+  padding: 0.9rem;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 1);
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border: none;
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: #333;
+  vertical-align: middle;
+}
+
+.p-datatable-table {
+  border-collapse: separate !important;
+  border-spacing: 8px !important; 
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #fffdf9;
+}
+
+.p-inputtextarea:hover,
+.p-inputtextarea:focus {
+  border-color: #333 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2) !important;
+  outline: none !important;
+}
+
+/* === NO HOVER === */
+.p-inputtext:hover,
+.p-inputtext:focus,
+.p-inputnumber-input:hover,
+.p-inputnumber-input:focus,
+.p-textarea:hover,
+.p-textarea:focus,
+.p-calendar:hover,
+.p-calendar:focus,
+.p-dropdown:hover,
+.p-dropdown:focus {
+  outline: none !important;
+}
+
+/* === DROPDOWN === */
+.p-dropdown {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  border: 2px solid #333 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2) !important;
+  background-color: #fff !important;
+  height: 40px !important;
+  position: relative !important;
+}
+
+.p-dropdown-label {
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 0.95rem !important;
+  padding: 0 2rem 0 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.p-dropdown-trigger {
+  right: 0.5rem !important;
+  display: flex !important;
+  background-color: #ffcd00 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  height: 100% !important;
+  width: 2rem !important;
+  border-left: 2px solid #333 !important;
+}
+
+.p-dropdown-trigger:hover {
+  background-color: #fff7ed !important;
+  color: #f59e0b !important;
+  border-color: #f59e0b !important;
+}
+
+.p-dropdown-panel {
+  border: 2px solid #333 !important;
+  background-color: #fffdf8 !important;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2) !important;
+  padding: 1rem !important;
+  overflow: hidden !important;
+  list-style: none !important;
+  width: 50px !important;
+}
+
+.p-dropdown-item {
+  padding: 0.6rem 0.8rem !important;
+  font-size: 0.9rem !important;
+  border-radius: 4px !important;
+  transition: background 0.15s ease, transform 0.1s ease;
+  list-style-type: none !important;
+}
+
+.p-dropdown-item:hover {
+  background-color: #ffef99 !important;
+  transform: translateX(2px);
+  cursor: pointer;
+}
+
+.p-dropdown-item .p-dropdown-item-icon {
+  color: #333 !important;
+}
+
+.p-dropdown-list,
+.p-dropdown-sublist {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+.p-dropdown-items li,
+.p-dropdown-list li {
+  list-style-type: none !important;
+}

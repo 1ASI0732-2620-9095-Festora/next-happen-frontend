@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_API_URL: /proxy
+        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY:-}
+    container_name: nexthappen-frontend
+    ports:
+      - "8080:80"
+    # Lets the nginx container reach the gateway published on the host (Docker Desktop / Linux).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
