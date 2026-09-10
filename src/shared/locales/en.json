@@ -217,7 +217,26 @@
     "save": "Save Changes",
     "logout": "Log Out",
     "fillFields": "Please fill in all fields.",
-    "saved": "Profile updated successfully."
+    "saved": "Profile updated successfully.",
+    "securityTitle": "Security & Protection",
+    "securityDesc": "Enhance account safety with an extra layer of authentication.",
+    "twoFactorAuth": "Two-Factor Verification (Email OTP)",
+    "twoFactorActive": "Active - OTP verification requested on login",
+    "twoFactorInactive": "Disabled - Direct login enabled"
+  },
+  "twoFactor": {
+    "title": "Two-Factor Verification",
+    "subtitle": "A 6-digit security code has been sent to your registered email address.",
+    "enterCode": "Enter Verification Code",
+    "demoCodeLabel": "Test/Demo Verification Code",
+    "verifying": "Verifying code...",
+    "verifyButton": "Verify & Continue",
+    "invalidCode": "Invalid or expired verification code. Please check and try again.",
+    "resendIn": "Resend code in",
+    "resendButton": "Resend Security Code",
+    "resending": "Sending new code...",
+    "resendError": "Could not resend verification code.",
+    "backToLogin": "Cancel and return to Sign In"
   },
   "legal": {
     "modalTitle": "Terms and Conditions of Service",

@@ -227,7 +227,26 @@
     "save": "Guardar cambios",
     "logout": "Cerrar sesión",
     "fillFields": "Por favor completa todos los campos.",
-    "saved": "Perfil actualizado correctamente."
+    "saved": "Perfil actualizado correctamente.",
+    "securityTitle": "Seguridad y Protección",
+    "securityDesc": "Protege tu cuenta con una capa adicional de autenticación.",
+    "twoFactorAuth": "Verificación en Dos Pasos (Email OTP)",
+    "twoFactorActive": "Activo - Se solicitará código OTP al iniciar sesión",
+    "twoFactorInactive": "Desactivado - Inicio de sesión directo habilitado"
+  },
+  "twoFactor": {
+    "title": "Verificación en Dos Pasos",
+    "subtitle": "Hemos enviado un código de seguridad de 6 dígitos a tu correo electrónico registrado.",
+    "enterCode": "Ingresa el Código de Verificación",
+    "demoCodeLabel": "Código de prueba/demostración",
+    "verifying": "Verificando código...",
+    "verifyButton": "Verificar y Continuar",
+    "invalidCode": "Código de verificación inválido o expirado. Por favor inténtalo de nuevo.",
+    "resendIn": "Reenviar código en",
+    "resendButton": "Reenviar Código de Seguridad",
+    "resending": "Enviando nuevo código...",
+    "resendError": "No se pudo reenviar el código de verificación.",
+    "backToLogin": "Cancelar y volver a Iniciar Sesión"
   },
   "legal": {
     "modalTitle": "Términos y Condiciones del Servicio",
