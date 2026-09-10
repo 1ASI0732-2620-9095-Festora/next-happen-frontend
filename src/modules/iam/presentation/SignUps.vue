@@ -119,6 +119,33 @@
           </small>
         </div>
 
+        <!-- Terms and Conditions Acceptance -->
+        <div class="terms-group">
+          <label class="terms-label">
+            <input
+              type="checkbox"
+              id="acceptTerms"
+              v-model="acceptTerms"
+              class="terms-checkbox"
+              :aria-invalid="!acceptTerms"
+              required
+            />
+            <span class="terms-text">
+              {{ t('legal.acceptLabel') }}
+              <button
+                type="button"
+                class="terms-link-btn"
+                @click="showTermsModal = true"
+              >
+                {{ t('legal.termsAndConditions') }}
+              </button>
+            </span>
+          </label>
+          <small v-if="!acceptTerms && (nameTouched || emailTouched || passwordTouched)" class="field-info">
+            {{ t('validations.termsRequired') }}
+          </small>
+        </div>
+
         <button type="submit" class="btn-submit" :disabled="loading || isFormInvalid">
           {{ loading ? t('signup.creating') : t('signup.create') }}
         </button>
@@ -131,6 +158,9 @@
         <router-link to="/signin" class="login-link">{{ t('signup.signin') }}</router-link>
       </p>
     </div>
+
+    <!-- Modal de Términos y Condiciones -->
+    <TermsModal v-model="showTermsModal" @accepted="acceptTerms = true" />
   </div>
 </template>
 
@@ -140,6 +170,7 @@ import { useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { registerUserService, loginUserService } from "@/modules/iam/infrastructure/auth.api.js";
 import { useValidators } from "@/shared/composables/useValidators.js";
+import TermsModal from "@/shared/presentation/TermsModal.vue";
 import { jwtDecode } from "jwt-decode";
 
 const router = useRouter()
@@ -156,6 +187,8 @@ const email = ref("")
 const password = ref("")
 const confirmPassword = ref("")
 const userType = ref("")
+const acceptTerms = ref(false)
+const showTermsModal = ref(false)
 const loading = ref(false)
 const error = ref("")
 const currentLang = ref(locale.value)
@@ -189,6 +222,7 @@ const confirmPasswordError = computed(() => confirmPasswordResult.value.valid ? 
 const isFormInvalid = computed(() => {
   return (
     !userType.value ||
+    !acceptTerms.value ||
     !nameResult.value.valid ||
     !emailResult.value.valid ||
     !passwordResult.value.valid ||
@@ -481,5 +515,54 @@ async function registerUser() {
 
 .meter-strong {
   background-color: #10b981;
+}
+
+.terms-group {
+  margin: 0.5rem 0;
+  text-align: left;
+}
+
+.terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.terms-checkbox {
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: 3px;
+  cursor: pointer;
+  accent-color: #000;
+}
+
+.terms-text {
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.4;
+}
+
+.terms-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #000;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.terms-link-btn:hover {
+  color: #f59e0b;
+}
+
+.field-info {
+  display: block;
+  font-size: 0.78rem;
+  color: #b91c1c;
+  margin-top: 0.25rem;
 }
 </style>
