@@ -88,8 +88,11 @@ import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 
+import { useToast } from "primevue/usetoast"
+
 const { t } = useI18n()
 const router = useRouter()
+const toast = useToast()
 
 const name = ref("")
 const email = ref("")
@@ -159,7 +162,14 @@ function triggerFileInput() {
    Guardar datos del usuario localmente
 ===================================================== */
 function saveProfile() {
-  if (!name.value || !email.value) return alert(t("profile.fillFields"))
+  if (!name.value || !email.value) {
+    if (toast) {
+      toast.add({ severity: 'warn', summary: t('profile.title'), detail: t('profile.fillFields'), life: 3000 })
+    } else {
+      alert(t("profile.fillFields"))
+    }
+    return
+  }
 
   localStorage.setItem("userName", name.value)
   localStorage.setItem("userAvatar", avatar.value)
@@ -172,7 +182,11 @@ function saveProfile() {
     avatar: avatar.value
   }))
 
-  alert(t("profile.saved"))
+  if (toast) {
+    toast.add({ severity: 'success', summary: t('profile.title'), detail: t('profile.saved'), life: 3000 })
+  } else {
+    alert(t("profile.saved"))
+  }
 }
 
 /* =====================================================
