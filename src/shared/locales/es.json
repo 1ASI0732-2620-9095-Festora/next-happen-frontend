@@ -3,7 +3,23 @@
     "dashboard": "Dashboard", 
     "stands": "Stands" 
   },
-
+  "validations": {
+    "emailRequired": "El correo electrónico es obligatorio.",
+    "emailInvalid": "Por favor ingresa un correo electrónico válido.",
+    "passwordRequired": "La contraseña es obligatoria.",
+    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres.",
+    "passwordComplexity": "La contraseña debe incluir mayúsculas, minúsculas, números y símbolos.",
+    "confirmPasswordRequired": "Por favor confirma tu contraseña.",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+    "nameRequired": "El nombre completo es obligatorio.",
+    "nameTooShort": "El nombre debe tener al menos 2 caracteres.",
+    "nameInvalid": "El nombre solo debe contener letras y espacios.",
+    "numberRequired": "Este campo es obligatorio.",
+    "numberNegative": "El valor no puede ser negativo.",
+    "quantityRequired": "La cantidad es obligatoria.",
+    "quantityInvalid": "La cantidad debe ser un número entero positivo.",
+    "termsRequired": "Debes aceptar los Términos y Condiciones para continuar."
+  },
   "home": { 
     "title": "Inicio", 
     "msg": "Bienvenido a NextHappen",

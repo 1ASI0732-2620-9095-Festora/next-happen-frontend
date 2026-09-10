@@ -1,5 +1,22 @@
 {
   "nav": { "dashboard": "Dashboard", "stands": "Stands" },
+  "validations": {
+    "emailRequired": "Email address is required.",
+    "emailInvalid": "Please enter a valid email address.",
+    "passwordRequired": "Password is required.",
+    "passwordMinLength": "Password must be at least 8 characters long.",
+    "passwordComplexity": "Password must include uppercase, lowercase, numbers, and symbols.",
+    "confirmPasswordRequired": "Please confirm your password.",
+    "passwordsDoNotMatch": "Passwords do not match.",
+    "nameRequired": "Full name is required.",
+    "nameTooShort": "Name must be at least 2 characters.",
+    "nameInvalid": "Name should only contain letters and spaces.",
+    "numberRequired": "This field is required.",
+    "numberNegative": "Value cannot be negative.",
+    "quantityRequired": "Quantity is required.",
+    "quantityInvalid": "Quantity must be a positive integer.",
+    "termsRequired": "You must accept the Terms and Conditions to proceed."
+  },
   "home": { 
     "title": "Home", 
     "msg": "Welcome to NextHappen",
