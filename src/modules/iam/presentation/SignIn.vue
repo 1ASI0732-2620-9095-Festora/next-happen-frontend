@@ -176,8 +176,24 @@ async function loginUser() {
 
     const userRole = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.Role;
     const userId = decoded.id || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
-    const userName = decoded.name || decoded.unique_name || decoded.FullName || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || "User";
-    const userEmail = decoded.email || decoded.Email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || email.value;
+    const userName = decoded.name || decoded.unique_name || decoded.FullName || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || (payload.Role === "User" ? "User" : "Organizer");
+    const userEmail = decoded.email || decoded.Email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || email.value.trim();
+
+    // Security Barrier: 2FA Email OTP Verification (Active by default)
+    const is2faEnabled = localStorage.getItem(`nh_2fa_${userEmail}`) !== 'false';
+
+    if (is2faEnabled) {
+      sessionStorage.setItem('nh_pending_auth', JSON.stringify({
+        token,
+        userId,
+        role: userRole,
+        userName,
+        userEmail
+      }));
+      sessionStorage.setItem('nh_pending_email', userEmail);
+      router.push('/verify-2fa');
+      return;
+    }
 
     localStorage.setItem("token", token)
     localStorage.setItem("userId", userId)

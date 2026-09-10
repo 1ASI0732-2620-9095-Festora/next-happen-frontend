@@ -12,6 +12,7 @@ import CheckoutCancel from '@/modules/tickets/presentation/CheckoutCancel.vue'
 import SignIn from '@/modules/iam/presentation/SignIn.vue'
 import Profile from '@/modules/iam/presentation/Profile.vue'
 import TermsAndConditions from '@/shared/presentation/TermsAndConditions.vue'
+import TwoFactorVerify from '@/modules/iam/presentation/TwoFactorVerify.vue'
 
 const routes = [
     { path: '/', redirect: '/signin' },
@@ -27,6 +28,7 @@ const routes = [
     // Rutas abiertas
     { path: '/signup', name: 'user-signup', component: SignUps },
     { path: '/signin', name: 'user-signin', component: SignIn },
+    { path: '/verify-2fa', name: 'verify-2fa', component: TwoFactorVerify },
     { path: '/terms-and-conditions', name: 'terms-and-conditions', component: TermsAndConditions },
     { path: '/user/publishment/:id', name: 'user-publishment', component: Publishment, props: true },
 ]
