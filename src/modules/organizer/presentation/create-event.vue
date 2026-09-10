@@ -389,7 +389,18 @@ const removeImage = (index) => {
    Publicar evento en Backend .NET
 ===================================================== */
 const publishEvent = async () => {
-  if (!form.value.title || !form.value.dates || !form.value.address) {
+  if (!form.value.title || form.value.title.trim().length < 3 || !form.value.dates || !form.value.address) {
+    showMissingFieldsDialog.value = true;
+    return;
+  }
+
+  // Validaciones numéricas reales
+  if (form.value.price !== null && form.value.price !== undefined && Number(form.value.price) < 0) {
+    showMissingFieldsDialog.value = true;
+    return;
+  }
+
+  if (form.value.quantity !== null && form.value.quantity !== undefined && (!Number.isInteger(Number(form.value.quantity)) || Number(form.value.quantity) <= 0)) {
     showMissingFieldsDialog.value = true;
     return;
   }
