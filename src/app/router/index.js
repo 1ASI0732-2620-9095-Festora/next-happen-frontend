@@ -12,8 +12,10 @@ const router = createRouter({
         { 
             path: '/', 
             redirect: () => {
+                const token = localStorage.getItem("token");
                 const role = localStorage.getItem("role");
-                return role === "User" ? "/user/home" : "/org/create-event";
+                if (!token) return "/signin";
+                return role === "Organizer" ? "/org/dashboard" : "/user/home";
             }
         }
     ]
