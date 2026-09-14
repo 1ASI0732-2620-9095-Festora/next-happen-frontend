@@ -193,10 +193,15 @@ function saveProfile() {
    Logout
 ===================================================== */
 function logout() {
-  localStorage.removeItem("user")
-  localStorage.removeItem("userName")
-  localStorage.removeItem("userAvatar")
+  localStorage.removeItem("token")
+  localStorage.removeItem("userId")
+  localStorage.removeItem("role")
   localStorage.removeItem("userType")
+  localStorage.removeItem("userName")
+  localStorage.removeItem("userEmail")
+  localStorage.removeItem("userAvatar")
+  localStorage.removeItem("user")
+  sessionStorage.clear()
   router.push("/signin")
 }
 </script>
