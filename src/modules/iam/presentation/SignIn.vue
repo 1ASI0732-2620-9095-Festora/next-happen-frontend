@@ -103,7 +103,7 @@ const { validateEmail } = useValidators()
 
 const email = ref("")
 const password = ref("")
-const userType = ref("") 
+const userType = ref("user") 
 const loading = ref(false)
 const error = ref("")
 const currentLang = ref(locale.value)
@@ -120,7 +120,7 @@ const passwordError = computed(() => {
 })
 
 const isFormInvalid = computed(() => {
-  return !userType.value || !emailResult.value.valid || !password.value
+  return !emailResult.value.valid || !password.value
 })
 
 function toggleLanguage() {
@@ -136,13 +136,6 @@ async function loginUser() {
   emailTouched.value = true
   passwordTouched.value = true
 
-  if (!userType.value) {
-    error.value = currentLang.value === "es"
-      ? "Por favor selecciona tu tipo de cuenta."
-      : "Please select your account type."
-    return
-  }
-
   if (isFormInvalid.value) {
     error.value = currentLang.value === "es"
       ? "Por favor completa tus credenciales correctamente."
@@ -156,7 +149,7 @@ async function loginUser() {
     const payload = {
       Email: email.value.trim(),
       Password: password.value,
-      Role: userType.value === "user" ? "User" : "Organizer"
+      Role: userType.value === "organizer" ? "Organizer" : "User"
     }
 
     const res = await loginUserService(payload)
@@ -174,10 +167,10 @@ async function loginUser() {
         throw new Error("Error decodificando JWT en SignIn. Token crudo: " + token);
     }
 
-    const userRole = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.Role;
-    const userId = decoded.id || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
-    const userName = decoded.name || decoded.unique_name || decoded.FullName || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || (payload.Role === "User" ? "User" : "Organizer");
-    const userEmail = decoded.email || decoded.Email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || email.value.trim();
+    const userRole = res.data?.role || decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || (userType.value === "organizer" ? "Organizer" : "User");
+    const userId = res.data?.userId || decoded.id || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+    const userName = res.data?.fullName || decoded.name || decoded.unique_name || decoded.FullName || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || (userRole === "User" ? "User" : "Organizer");
+    const userEmail = res.data?.email || decoded.email || decoded.Email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || email.value.trim();
 
     // Security Barrier: 2FA Email OTP Verification (Active by default)
     const is2faEnabled = localStorage.getItem(`nh_2fa_${userEmail}`) !== 'false';

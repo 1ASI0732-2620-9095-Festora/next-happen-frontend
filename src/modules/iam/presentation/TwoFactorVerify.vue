@@ -181,8 +181,9 @@ async function handleResend() {
   error.value = ''
   try {
     const res = await sendTwoFactorCode(userEmail.value)
-    if (res.data?.code) {
-      demoCode.value = res.data.code
+    const receivedCode = res.data?.debugCode || res.data?.code
+    if (receivedCode) {
+      demoCode.value = receivedCode
     }
     startCountdown()
   } catch (err) {
@@ -213,8 +214,9 @@ onMounted(async () => {
 
   // Generate / request code
   const res = await sendTwoFactorCode(userEmail.value)
-  if (res.data?.code) {
-    demoCode.value = res.data.code
+  const receivedCode = res.data?.debugCode || res.data?.code
+  if (receivedCode) {
+    demoCode.value = receivedCode
   }
   startCountdown()
 

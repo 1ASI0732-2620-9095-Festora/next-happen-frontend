@@ -276,7 +276,7 @@ const API_URL =
    Formulario
 ===================================================== */
 const form = ref({
-  organizer: "",
+  organizer: localStorage.getItem("userName") || "",
   title: "",
   description: "",
   price: null,
@@ -415,7 +415,7 @@ const publishEvent = async () => {
   const locationString = lat && lng ? `${lat},${lng}|${form.value.location || rawAddress}` : (form.value.location || rawAddress);
 
   const newEvent = {
-    organizer: form.value.organizer,
+    organizer: form.value.organizer || localStorage.getItem("userName") || "Organizador",
     title: form.value.title,
     description: form.value.description,
     price: parseFloat(form.value.price) || null,
@@ -448,7 +448,7 @@ const publishEvent = async () => {
     showSuccessDialog.value = true;
 
     form.value = {
-      organizer: "",
+      organizer: localStorage.getItem("userName") || "",
       title: "",
       description: "",
       price: null,
