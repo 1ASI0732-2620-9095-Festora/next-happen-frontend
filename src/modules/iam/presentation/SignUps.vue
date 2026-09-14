@@ -267,7 +267,9 @@ async function registerUser() {
       FullName: name.value.trim(),       
       Email: email.value.trim(),         
       Password: password.value,   
-      Role: userType.value === "user" ? "User" : "Organizer" 
+      Role: userType.value === "user" ? "User" : "Organizer",
+      TermsAccepted: acceptTerms.value,
+      TermsVersion: "v1.0-2026"
     };
 
     // 1. Crear usuario
@@ -294,17 +296,25 @@ async function registerUser() {
     }
 
     const userId = decoded.id || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+    const resolvedRole = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.Role;
 
     localStorage.setItem("token", token);
     localStorage.setItem("userId", userId);
-    localStorage.setItem("userName", name.value);
-    localStorage.setItem("userType", payload.Role);
-    localStorage.setItem("role", payload.Role);
+    localStorage.setItem("userName", name.value.trim());
+    localStorage.setItem("userEmail", email.value.trim());
+    localStorage.setItem("userType", resolvedRole);
+    localStorage.setItem("role", resolvedRole);
+    localStorage.setItem("user", JSON.stringify({
+      id: userId,
+      name: name.value.trim(),
+      email: email.value.trim(),
+      role: resolvedRole
+    }));
 
     loading.value = false;
 
     // 3. Redirigir según el rol
-    if (payload.Role === "User") router.push("/user/home");
+    if (resolvedRole === "User") router.push("/user/home");
     else router.push("/org/dashboard");
 
   } catch (err) {
