@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/proxy/(.*)", "destination": "http://159.112.143.58/$1" },
+    { "source": "/proxy/(.*)", "destination": "https://next-happen-backend.onrender.com/$1" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
