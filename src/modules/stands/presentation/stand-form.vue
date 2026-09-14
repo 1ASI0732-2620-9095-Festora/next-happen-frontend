@@ -6,26 +6,42 @@
 
     <div class="grid">
       <div class="col-12 md:col-6">
-        <label class="block mb-1">{{ $t('stands.name') }}</label>
+        <label for="stand-name" class="block mb-1">{{ $t('stands.name') }}</label>
         <pv-input-text
+          id="stand-name"
           v-model.trim="form.name"
           required
           class="form-name"
+          :class="{ 'p-invalid': nameTouched && !isNameValid }"
+          :aria-invalid="nameTouched && !isNameValid"
+          aria-describedby="stand-name-err"
           :placeholder="$t('stands.name')"
+          @blur="nameTouched = true"
         />
+        <small v-if="nameTouched && !isNameValid" id="stand-name-err" class="p-error block mt-1" role="alert">
+          {{ $t('stands.errors.nameRequired') }}
+        </small>
       </div>
 
       <div class="col-12 md:col-6">
-        <label class="block mb-1">{{ $t('stands.category') }}</label>
+        <label for="stand-cat" class="block mb-1">{{ $t('stands.category') }}</label>
 
         <!-- DROPDOWN EDITABLE -->
         <pv-dropdown
+          id="stand-cat"
           v-model="form.category"
           :options="categories"
           editable
           class="w-full"
+          :class="{ 'p-invalid': categoryTouched && !form.category }"
+          :aria-invalid="categoryTouched && !form.category"
+          aria-describedby="stand-cat-err"
           :placeholder="$t('stands.category')"
+          @blur="categoryTouched = true"
         />
+        <small v-if="categoryTouched && !form.category" id="stand-cat-err" class="p-error block mt-1" role="alert">
+          {{ $t('stands.errors.categoryRequired') }}
+        </small>
       </div>
     </div>
 
@@ -34,6 +50,7 @@
         class="save-button"
         :label="isEdit ? $t('common.update') : $t('common.save')"
         icon="pi pi-check"
+        :disabled="isFormInvalid"
         @click="onSubmit"
       />
 
@@ -45,7 +62,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, ref } from 'vue'
+import { reactive, onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAssignStandsStore } from '@/modules/stands/application/assign-stands.store.js'
 
@@ -56,12 +73,8 @@ const router = useRouter()
 const eventId = route.params.eventId;  
 const isEdit = !!route.params.id;
 
-onMounted(() => {
-  if (isEdit) {
-    const found = store.stands.find(s => s.id == route.params.id);
-    if (found) Object.assign(form, found);
-  }
-});
+const nameTouched = ref(false)
+const categoryTouched = ref(false)
 
 const categories = ref([
   'Comida', 'Arte', 'Ropa', 'Bebidas', 'Accesorios',
@@ -75,14 +88,22 @@ const form = reactive({
   category: ''
 })
 
+const isNameValid = computed(() => form.name && form.name.trim().length >= 2)
+const isFormInvalid = computed(() => !isNameValid.value || !form.category)
+
 onMounted(() => {
   if (isEdit) {
-    const found = store.stands.find(s => s.id === Number(route.params.id))
-    if (found) Object.assign(form, found)
+    const found = store.stands.find(s => s.id == route.params.id || s.id === Number(route.params.id));
+    if (found) Object.assign(form, found);
   }
-})
+});
 
 async function onSubmit() {
+  nameTouched.value = true
+  categoryTouched.value = true
+
+  if (isFormInvalid.value) return
+
   if (isEdit) {
     await store.update(form)
   } else {

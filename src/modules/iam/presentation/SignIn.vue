@@ -36,7 +36,7 @@
               </div>
             </div>
       
-            <form @submit.prevent="loginUser" class="signup-form">
+            <form @submit.prevent="loginUser" class="signup-form" novalidate>
               <div class="form-group">
                 <label for="email">{{ t('signup.email') }}</label>
                 <input
@@ -44,8 +44,15 @@
                   v-model.trim="email"
                   type="email"
                   :placeholder="t('signup.emailPlaceholder')"
+                  :class="{ 'input-invalid': emailTouched && emailError }"
+                  :aria-invalid="!!(emailTouched && emailError)"
+                  aria-describedby="signin-email-error"
+                  @blur="emailTouched = true"
                   required
                 />
+                <small v-if="emailTouched && emailError" id="signin-email-error" class="field-error" role="alert">
+                  {{ emailError }}
+                </small>
               </div>
       
               <div class="form-group">
@@ -55,16 +62,22 @@
                   v-model.trim="password"
                   type="password"
                   :placeholder="t('signin.passwordPlaceholder')"
-                  minlength="6"
+                  :class="{ 'input-invalid': passwordTouched && passwordError }"
+                  :aria-invalid="!!(passwordTouched && passwordError)"
+                  aria-describedby="signin-pwd-error"
+                  @blur="passwordTouched = true"
                   required
                 />
+                <small v-if="passwordTouched && passwordError" id="signin-pwd-error" class="field-error" role="alert">
+                  {{ passwordError }}
+                </small>
               </div>
       
-              <button type="submit" class="btn-submit" :disabled="loading">
+              <button type="submit" class="btn-submit" :disabled="loading || isFormInvalid">
                 {{ loading ? t('signin.loading') : t('signin.button') }}
               </button>
       
-              <p v-if="error" class="error-text">{{ error }}</p>
+              <p v-if="error" class="error-text" role="alert">{{ error }}</p>
             </form>
       
             <p class="login-text">
@@ -77,14 +90,16 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { loginUserService } from "@/modules/iam/infrastructure/auth.api.js"
+import { useValidators } from "@/shared/composables/useValidators.js"
 import { jwtDecode } from "jwt-decode"
 
 const router = useRouter()
 const { t, locale } = useI18n()
+const { validateEmail } = useValidators()
 
 const email = ref("")
 const password = ref("")
@@ -93,14 +108,33 @@ const loading = ref(false)
 const error = ref("")
 const currentLang = ref(locale.value)
 
+const emailTouched = ref(false)
+const passwordTouched = ref(false)
+
+const emailResult = computed(() => validateEmail(email.value))
+const emailError = computed(() => emailResult.value.valid ? '' : t(emailResult.value.errorKey))
+
+const passwordError = computed(() => {
+  if (!password.value) return t('validations.passwordRequired')
+  return ''
+})
+
+const isFormInvalid = computed(() => {
+  return !userType.value || !emailResult.value.valid || !password.value
+})
+
 function toggleLanguage() {
-  locale.value = locale.value === "es" ? "en" : "es"
-  currentLang.value = locale.value
-  localStorage.setItem("lang", locale.value)
+  const nextLang = locale.value === "es" ? "en" : "es"
+  locale.value = nextLang
+  currentLang.value = nextLang
+  localStorage.setItem("nh-locale", nextLang)
+  localStorage.setItem("lang", nextLang)
 }
 
 async function loginUser() {
   error.value = ""
+  emailTouched.value = true
+  passwordTouched.value = true
 
   if (!userType.value) {
     error.value = currentLang.value === "es"
@@ -109,25 +143,30 @@ async function loginUser() {
     return
   }
 
+  if (isFormInvalid.value) {
+    error.value = currentLang.value === "es"
+      ? "Por favor completa tus credenciales correctamente."
+      : "Please complete your credentials correctly."
+    return
+  }
+
   loading.value = true
 
   try {
     const payload = {
-      Email: email.value,
+      Email: email.value.trim(),
       Password: password.value,
       Role: userType.value === "user" ? "User" : "Organizer"
     }
-
 
     const res = await loginUserService(payload)
     const token = res.data?.token || res.data?.accessToken || res.data?.Token;
     console.log("Token recibido en SignIn:", token);
 
     if (!token) {
-        throw new Error("El backend no devolvió un token. Respuesta: " + JSON.stringify(res.data));
+        throw new Error("El backend no devolvió un token.");
     }
 
-    // Decodificar token correctamente
     let decoded;
     try {
         decoded = jwtDecode(token);
@@ -135,11 +174,26 @@ async function loginUser() {
         throw new Error("Error decodificando JWT en SignIn. Token crudo: " + token);
     }
 
-    // Guardar valores REALES del usuario logueado
-    const userRole = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    const userRole = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.Role;
     const userId = decoded.id || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
-    const userName = decoded.name || decoded.unique_name || decoded.FullName || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || "Organizer";
-    const userEmail = decoded.email || decoded.Email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || "";
+    const userName = decoded.name || decoded.unique_name || decoded.FullName || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || (payload.Role === "User" ? "User" : "Organizer");
+    const userEmail = decoded.email || decoded.Email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || email.value.trim();
+
+    // Security Barrier: 2FA Email OTP Verification (Active by default)
+    const is2faEnabled = localStorage.getItem(`nh_2fa_${userEmail}`) !== 'false';
+
+    if (is2faEnabled) {
+      sessionStorage.setItem('nh_pending_auth', JSON.stringify({
+        token,
+        userId,
+        role: userRole,
+        userName,
+        userEmail
+      }));
+      sessionStorage.setItem('nh_pending_email', userEmail);
+      router.push('/verify-2fa');
+      return;
+    }
 
     localStorage.setItem("token", token)
     localStorage.setItem("userId", userId)
@@ -147,7 +201,6 @@ async function loginUser() {
     localStorage.setItem("userName", userName)
     localStorage.setItem("userEmail", userEmail)
 
-    // Legacy support
     localStorage.setItem("user", JSON.stringify({
       id: userId,
       name: userName,
@@ -155,10 +208,6 @@ async function loginUser() {
       role: userRole
     }))
 
-    console.log("UserId guardado:", userId)
-
-
-    // Redirección según el tipo de usuario
     if (userRole === "User") {
       router.push("/user/home")
     } else {
@@ -167,7 +216,7 @@ async function loginUser() {
 
   } catch (err) {
     console.error("Error login:", err)
-    error.value = "Credenciales incorrectas"
+    error.value = t("signin.error")
   } finally {
     loading.value = false
   }
@@ -333,5 +382,18 @@ async function loginUser() {
   color: #000;
   font-weight: 600;
   text-decoration: underline;
+}
+
+.input-invalid {
+  border-color: #d32f2f !important;
+  background-color: #fff8f8;
+}
+
+.field-error {
+  color: #d32f2f;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  display: block;
 }
 </style>
