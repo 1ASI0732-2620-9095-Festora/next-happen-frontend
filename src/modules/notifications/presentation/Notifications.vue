@@ -48,18 +48,28 @@ async function fetchEvents() {
 }
 
 /* =====================================================
-   Al montar la vista: cargar eventos + métricas
+   Al montar la vista: cargar eventos propios + métricas
 ===================================================== */
 onMounted(async () => {
   await fetchEvents()
   const metrics = await metricsApi.getAll()
 
+  const currentOrgId = localStorage.getItem("userId")
+  const currentOrgName = localStorage.getItem("userName")
+
+  // Filtrar exclusivamente los eventos que pertenecen a este organizador
+  const myEvents = events.value.filter(evt => 
+    evt.organizer === currentOrgId || 
+    evt.organizer === currentOrgName
+  )
+  const myEventMap = new Map(myEvents.map(e => [e.id, e.title]))
+
+  // Solo mostrar interacciones pertenecientes a los eventos de este organizador
   notifications.value = metrics
+    .filter(m => myEventMap.has(m.eventId))
     .map(m => ({
       ...m,
-      eventTitle:
-        events.value.find(evt => evt.id === m.eventId)?.title ||
-        "Evento desconocido"
+      eventTitle: myEventMap.get(m.eventId) || "Tu evento"
     }))
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 })

@@ -15,8 +15,6 @@ import TermsAndConditions from '@/shared/presentation/TermsAndConditions.vue'
 import TwoFactorVerify from '@/modules/iam/presentation/TwoFactorVerify.vue'
 
 const routes = [
-    { path: '/', redirect: '/signin' },
-
     { path: '/user/home', name: 'user-home', component: Home, meta: { requiresAuth: true, role: "User" } },
     { path: '/user/events', name: 'user-events', component: Events, meta: { requiresAuth: true, role: "User" } },
     { path: '/user/tickets', name: 'user-tickets', component: Tickets, meta: { requiresAuth: true, role: "User" } },
