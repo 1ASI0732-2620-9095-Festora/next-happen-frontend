@@ -209,7 +209,7 @@ async function loginUser() {
 
   } catch (err) {
     console.error("Error login:", err)
-    error.value = t("signin.error")
+    error.value = err.response?.data?.error || t("signin.error")
   } finally {
     loading.value = false
   }

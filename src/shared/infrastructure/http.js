@@ -14,16 +14,21 @@ http.interceptors.request.use((config) => {
     return config
 })
 
-// Response interceptor: on 401, clear auth state and redirect to sign-in.
+// Response interceptor: on 401 for protected endpoints, clear auth state and redirect to signin.
 http.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
+        const url = error.config?.url || ''
+        const isLoginAttempt = url.includes('/api/auth/login')
+
+        if (error.response && error.response.status === 401 && !isLoginAttempt) {
             localStorage.removeItem('token')
             localStorage.removeItem('role')
             localStorage.removeItem('userId')
             localStorage.removeItem('user')
-            window.location.href = '/sign-in'
+            localStorage.removeItem('userEmail')
+            localStorage.removeItem('userName')
+            window.location.href = '/signin'
         }
         return Promise.reject(error)
     }

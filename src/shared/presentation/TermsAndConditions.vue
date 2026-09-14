@@ -2,9 +2,9 @@
   <div class="terms-page">
     <div class="terms-container">
       <header class="terms-header">
-        <router-link to="/" class="back-link">
+        <button type="button" class="back-link" @click="handleBack">
           <i class="pi pi-arrow-left"></i> {{ t('legal.backToHome') }}
-        </router-link>
+        </button>
         <h1 class="terms-title">{{ t('legal.pageTitle') }}</h1>
         <p class="terms-subtitle">{{ t('legal.lastUpdated') }}: 2026-09-08</p>
       </header>
@@ -45,9 +45,27 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
+const router = useRouter()
 const { t } = useI18n()
+
+function handleBack() {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    const token = localStorage.getItem('token')
+    const role = localStorage.getItem('role')
+    if (!token) {
+      router.push('/signin')
+    } else if (role === 'Organizer') {
+      router.push('/org/dashboard')
+    } else {
+      router.push('/user/home')
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -80,6 +98,11 @@ const { t } = useI18n()
   color: #000;
   font-weight: 600;
   text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0;
   margin-bottom: 1rem;
   transition: transform 0.2s ease;
 }
