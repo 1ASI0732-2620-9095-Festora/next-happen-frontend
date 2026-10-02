@@ -1,91 +1,182 @@
 <template>
   <div class="tickets-page">
     <header class="tk-head">
-      <span class="r-kicker">🎟️ Mis entradas</span>
-      <h1 class="r-page-title">Tus tickets NextHappen</h1>
-      <p class="tk-sub">Presenta el código QR en la puerta del evento.</p>
+      <span class="r-kicker">🎟️ {{ $t('tickets.pageTitle') }}</span>
+      <h1 class="r-page-title">{{ $t('tickets.pageTitle') }}</h1>
+      <p class="tk-sub">{{ $t('tickets.pageSub') }}</p>
+
+      <!-- Tabs de Navegación: Vigentes vs Historial (US14) -->
+      <div class="ticket-tabs">
+        <button
+          class="tab-btn"
+          :class="{ active: currentTab === 'active' }"
+          @click="currentTab = 'active'"
+        >
+          <i class="pi pi-ticket"></i> {{ $t('tickets.activeTab') }} ({{ activeTickets.length }})
+        </button>
+        <button
+          class="tab-btn"
+          :class="{ active: currentTab === 'history' }"
+          @click="currentTab = 'history'"
+        >
+          <i class="pi pi-history"></i> {{ $t('tickets.historyTab') }} ({{ historyTickets.length }})
+        </button>
+      </div>
     </header>
+
+    <!-- Resumen de Compras en la pestaña de Historial -->
+    <div v-if="currentTab === 'history' && !loading && historyTickets.length" class="history-summary r-card">
+      <div class="summary-metric">
+        <span class="metric-label">{{ $t('tickets.totalSpent') }}</span>
+        <span class="metric-val">S/. {{ totalHistorySpent.toFixed(2) }}</span>
+      </div>
+      <div class="summary-metric">
+        <span class="metric-label">Entradas Registradas</span>
+        <span class="metric-val">{{ historyTickets.length }}</span>
+      </div>
+      <div class="summary-metric">
+        <span class="metric-label">Última Compra</span>
+        <span class="metric-val">{{ lastPurchaseDate }}</span>
+      </div>
+    </div>
 
     <!-- Loading skeletons -->
     <div v-if="loading" class="tickets-list">
       <div v-for="n in 2" :key="n" class="skeleton"></div>
     </div>
 
-    <div v-else-if="tickets.length" class="tickets-list">
-      <article
-        v-for="ticket in tickets"
-        :key="ticket.id"
-        class="ticket r-pop-in"
-        :class="statusClass(ticket.status)"
-      >
-        <!-- Cuerpo del ticket -->
-        <div class="ticket-body">
-          <div class="ticket-top">
-            <h3 class="ticket-title">{{ ticket.title }}</h3>
-            <span class="r-badge" :class="badgeClass(ticket.status)">{{ statusLabel(ticket.status) }}</span>
+    <!-- Pestaña 1: Entradas Vigentes -->
+    <div v-else-if="currentTab === 'active'">
+      <div v-if="activeTickets.length" class="tickets-list">
+        <article
+          v-for="ticket in activeTickets"
+          :key="ticket.id"
+          class="ticket r-pop-in st-active"
+        >
+          <!-- Cuerpo del ticket -->
+          <div class="ticket-body">
+            <div class="ticket-top">
+              <h3 class="ticket-title">{{ ticket.title }}</h3>
+              <span class="r-badge r-badge--success">{{ $t('tickets.statusActive') }}</span>
+            </div>
+
+            <dl class="ticket-meta">
+              <div>
+                <dt>Precio</dt>
+                <dd class="price">S/. {{ Number(ticket.price).toFixed(2) }}</dd>
+              </div>
+              <div>
+                <dt>{{ $t('tickets.purchasedOn') }}</dt>
+                <dd>{{ formatDate(ticket.purchaseDate) }}</dd>
+              </div>
+            </dl>
+
+            <div class="ticket-actions">
+              <button class="r-btn r-btn--ghost" @click="goToEvent(ticket.eventId)">
+                <i class="pi pi-eye"></i> {{ $t('tickets.viewEventBtn') }}
+              </button>
+              <button
+                class="r-btn r-btn--danger"
+                :disabled="refunding === ticket.id"
+                @click="refund(ticket)"
+              >
+                <i class="pi pi-undo"></i> {{ refunding === ticket.id ? 'Procesando…' : $t('tickets.refundBtn') }}
+              </button>
+            </div>
           </div>
 
-          <dl class="ticket-meta">
-            <div>
-              <dt>Precio</dt>
-              <dd class="price">S/. {{ Number(ticket.price).toFixed(2) }}</dd>
-            </div>
-            <div>
-              <dt>Comprado</dt>
-              <dd>{{ formatDate(ticket.purchaseDate) }}</dd>
-            </div>
-          </dl>
+          <!-- Perforación -->
+          <div class="perf" aria-hidden="true"><span class="notch top"></span><span class="notch bot"></span></div>
 
-          <div class="ticket-actions">
-            <button class="r-btn r-btn--ghost" @click="goToEvent(ticket.eventId)">
-              <i class="pi pi-eye"></i> Ver evento
-            </button>
-            <button
-              v-if="ticket.status === 'Active'"
-              class="r-btn r-btn--danger"
-              :disabled="refunding === ticket.id"
-              @click="refund(ticket)"
-            >
-              <i class="pi pi-undo"></i> {{ refunding === ticket.id ? 'Procesando…' : 'Reembolsar' }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Perforación -->
-        <div class="perf" aria-hidden="true"><span class="notch top"></span><span class="notch bot"></span></div>
-
-        <!-- Colilla con QR + código corto -->
-        <div class="ticket-stub">
-          <template v-if="ticket.status === 'Active'">
+          <!-- Colilla con QR + código corto -->
+          <div class="ticket-stub">
             <img v-if="ticket.qrUrl" :src="ticket.qrUrl" alt="Código QR de la entrada" class="qr" />
             <div class="code-block" v-if="ticket.shortCode">
               <span class="code-label">Código</span>
               <span class="code-value">{{ formatCode(ticket.shortCode) }}</span>
             </div>
-            <span class="stub-tag">ADMIT ONE</span>
-          </template>
-          <div v-else class="stub-state">
-            <span class="stub-icon">{{ stubIcon(ticket.status) }}</span>
-            <span class="stub-label">{{ statusLabel(ticket.status) }}</span>
+            <span class="stub-tag">{{ $t('tickets.admitOne') }}</span>
           </div>
-        </div>
-      </article>
+        </article>
+      </div>
+
+      <!-- Empty state vigentes -->
+      <div v-else class="empty r-card">
+        <div class="empty-icon">🎫</div>
+        <h2>{{ $t('tickets.noActive') }}</h2>
+        <p>Cuando compres una entrada para un evento próximo, aparecerá aquí con su código QR listo para escanear.</p>
+        <button class="r-btn r-btn--primary" @click="$router.push({ name: 'user-events' })">
+          Explorar eventos
+        </button>
+      </div>
     </div>
 
-    <!-- Empty state que enseña la interfaz -->
-    <div v-else class="empty r-card">
-      <div class="empty-icon">🎫</div>
-      <h2>Todavía no tienes entradas</h2>
-      <p>Cuando compres una entrada, aparecerá aquí con su código QR listo para escanear.</p>
-      <button class="r-btn r-btn--primary" @click="$router.push({ name: 'user-events' })">
-        Explorar eventos
-      </button>
+    <!-- Pestaña 2: Historial de Compras (US14) -->
+    <div v-else-if="currentTab === 'history'">
+      <div v-if="historyTickets.length" class="tickets-list">
+        <article
+          v-for="ticket in historyTickets"
+          :key="ticket.id"
+          class="ticket r-pop-in"
+          :class="statusClass(ticket.status)"
+        >
+          <!-- Cuerpo del ticket -->
+          <div class="ticket-body">
+            <div class="ticket-top">
+              <h3 class="ticket-title">{{ ticket.title }}</h3>
+              <span class="r-badge" :class="badgeClass(ticket.status)">{{ statusLabel(ticket.status) }}</span>
+            </div>
+
+            <dl class="ticket-meta">
+              <div>
+                <dt>Importe</dt>
+                <dd class="price">S/. {{ Number(ticket.price).toFixed(2) }}</dd>
+              </div>
+              <div>
+                <dt>{{ $t('tickets.purchasedOn') }}</dt>
+                <dd>{{ formatDate(ticket.purchaseDate) }}</dd>
+              </div>
+              <div>
+                <dt>ID de Ticket</dt>
+                <dd class="ticket-id-sub">#{{ String(ticket.id).slice(0, 8) }}</dd>
+              </div>
+            </dl>
+
+            <div class="ticket-actions">
+              <button class="r-btn r-btn--ghost" @click="goToEvent(ticket.eventId)">
+                <i class="pi pi-eye"></i> {{ $t('tickets.viewEventBtn') }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Perforación -->
+          <div class="perf" aria-hidden="true"><span class="notch top"></span><span class="notch bot"></span></div>
+
+          <!-- Colilla informativa -->
+          <div class="ticket-stub">
+            <div class="stub-state">
+              <span class="stub-icon">{{ stubIcon(ticket.status) }}</span>
+              <span class="stub-label">{{ statusLabel(ticket.status) }}</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Empty state historial -->
+      <div v-else class="empty r-card">
+        <div class="empty-icon">📜</div>
+        <h2>{{ $t('tickets.noHistory') }}</h2>
+        <p>Aquí se registrará el historial de todas las entradas utilizadas o reembolsadas en la plataforma.</p>
+        <button class="r-btn r-btn--primary" @click="$router.push({ name: 'user-events' })">
+          Explorar eventos
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { PaymentsApi } from '@/modules/tickets/infrastructure/payments-api.js'
@@ -95,7 +186,32 @@ const paymentsApi = new PaymentsApi()
 const tickets = ref([])
 const loading = ref(true)
 const refunding = ref(null)
+const currentTab = ref('active') // 'active' | 'history'
+
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
+
+const activeTickets = computed(() => {
+  return tickets.value.filter(t => t.status === 'Active')
+})
+
+const historyTickets = computed(() => {
+  // Compras pasadas, utilizadas, canceladas o reembolsadas
+  return tickets.value.filter(t => t.status !== 'Active')
+})
+
+const totalHistorySpent = computed(() => {
+  return historyTickets.value.reduce((acc, t) => acc + (Number(t.price) || 0), 0)
+})
+
+const lastPurchaseDate = computed(() => {
+  if (!historyTickets.value.length) return '—'
+  const dates = historyTickets.value
+    .map(t => new Date(t.purchaseDate).getTime())
+    .filter(t => !isNaN(t))
+  if (!dates.length) return '—'
+  const max = Math.max(...dates)
+  return new Date(max).toLocaleDateString('es-PE', { dateStyle: 'medium' })
+})
 
 async function load() {
   loading.value = true
@@ -159,7 +275,6 @@ function statusLabel(status) {
 }
 function formatCode(code) {
   if (!code) return ''
-  // "7K4P9Q" → "7K4-P9Q" para leerlo/dictarlo con facilidad.
   return code.length === 6 ? `${code.slice(0, 3)}-${code.slice(3)}` : code
 }
 function stubIcon(status) {
@@ -177,8 +292,10 @@ function badgeClass(status) {
   }[status] || 'r-badge--muted'
 }
 function formatDate(date) {
+  if (!date) return '—'
   return new Date(date).toLocaleDateString('es-PE', { dateStyle: 'medium' })
 }
+
 function goToEvent(eventId) {
   router.push({ name: 'user-publishment', params: { id: eventId } })
 }
@@ -188,174 +305,284 @@ onMounted(load)
 
 <style scoped>
 .tickets-page {
-  max-width: 1080px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 40px 24px 64px;
+  padding: 32px 24px 64px;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
 }
 
-.tk-head { margin-bottom: 32px; }
-.r-page-title { font-size: 2.1rem; font-weight: 700; margin: 12px 0 6px; }
-.tk-sub { color: var(--r-ink-soft); margin: 0; }
+.tk-head {
+  margin-bottom: 24px;
+}
 
-.tickets-list {
+.tk-sub {
+  color: var(--r-text-sub, #4b5563);
+  margin-top: 4px;
+  margin-bottom: 18px;
+}
+
+/* Tabs */
+.ticket-tabs {
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid #111;
+  padding-bottom: 12px;
+  margin-top: 16px;
+}
+
+.tab-btn {
+  padding: 8px 18px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  background: white;
+  border: 2px solid #111;
+  box-shadow: 2px 2px 0 #111;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #111;
+}
+
+.tab-btn.active {
+  background: #ffcd00;
+  color: #111;
+  box-shadow: 3px 3px 0 #111;
+}
+
+/* History Summary Card */
+.history-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  background: #fffbe8;
+  border: 2px solid #111;
+  box-shadow: 3px 3px 0 #111;
 }
 
-/* ── Ticket como objeto físico: cuerpo + perforación + colilla ── */
+.summary-metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.metric-val {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #111;
+}
+
+.ticket-id-sub {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Lista de tickets */
+.tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.skeleton {
+  height: 170px;
+  background: #e5e7eb;
+  border: 2px solid #111;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 .ticket {
   display: grid;
-  grid-template-columns: 1fr auto;
-  background: var(--r-surface);
-  border: var(--r-bd-3);
-  box-shadow: var(--r-sh-3);
-  transition: transform var(--r-dur) var(--r-ease), box-shadow var(--r-dur) var(--r-ease);
+  grid-template-columns: 1fr auto 160px;
+  background: white;
+  border: 2px solid #111;
+  box-shadow: 4px 4px 0 #111;
+  overflow: hidden;
 }
-.ticket:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: var(--r-sh-pop);
+
+.ticket-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-.ticket.st-refunded,
-.ticket.st-cancelled { background: #f4f3f0; }
-.ticket.st-used { background: #fffdf3; }
 
-.ticket-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+.ticket-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
 
-.ticket-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .ticket-title {
-  font-family: var(--r-font-display);
-  font-size: 1.3rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   margin: 0;
-  line-height: 1.15;
+  font-size: 1.3rem;
+  font-weight: 800;
 }
 
-.ticket-meta { display: flex; gap: 28px; margin: 0; }
+.ticket-meta {
+  display: flex;
+  gap: 24px;
+  margin: 12px 0;
+}
+
 .ticket-meta dt {
-  font-family: var(--r-font-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--r-ink-faint);
+  font-weight: 700;
+  color: #666;
 }
-.ticket-meta dd { margin: 2px 0 0; font-weight: 600; }
-.ticket-meta .price { font-family: var(--r-font-mono); font-size: 1.25rem; font-weight: 700; }
 
-.ticket-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: auto; }
-.ticket-actions .r-btn { font-size: 0.85rem; padding: 9px 14px; }
+.ticket-meta dd {
+  margin: 2px 0 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
 
-/* Perforación con muescas */
+.ticket-meta .price {
+  color: #111;
+  font-weight: 800;
+}
+
+.ticket-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Perforación */
 .perf {
   position: relative;
-  width: 0;
-  border-left: 3px dashed var(--r-ink);
+  width: 2px;
+  border-left: 2px dashed #111;
+  margin: 8px 0;
 }
+
 .notch {
   position: absolute;
-  left: -9px;
   width: 16px;
   height: 16px;
-  background: var(--r-bg);
-  border: 2px solid var(--r-ink);
+  background: var(--r-bg, #f6f5f0);
   border-radius: 50%;
+  border: 2px solid #111;
+  left: -9px;
 }
-.notch.top { top: -9px; }
-.notch.bot { bottom: -9px; }
 
-/* Colilla con QR */
+.notch.top { top: -16px; }
+.notch.bot { bottom: -16px; }
+
+/* Stub */
 .ticket-stub {
-  width: 148px;
-  background: var(--r-surface-2);
+  background: #faf8f5;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 18px 12px;
+  text-align: center;
+  border-left: 2px solid #111;
 }
-.st-used .ticket-stub,
-.st-refunded .ticket-stub,
-.st-cancelled .ticket-stub { background: #ececea; }
 
 .qr {
-  width: 108px;
-  height: 108px;
-  border: var(--r-bd);
-  background: #fff;
-  image-rendering: pixelated;
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  margin-bottom: 8px;
 }
+
 .code-block {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  border: var(--r-bd);
-  background: var(--r-brand);
-  box-shadow: var(--r-sh-1);
-  padding: 5px 10px;
+  margin-bottom: 6px;
 }
+
 .code-label {
-  font-family: var(--r-font-mono);
-  font-size: 0.55rem;
-  letter-spacing: 0.14em;
+  font-size: 0.65rem;
+  font-weight: 800;
   text-transform: uppercase;
-  color: var(--r-brand-ink);
+  color: #777;
 }
+
 .code-value {
-  font-family: var(--r-font-mono);
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.08em;
-  color: var(--r-brand-ink);
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
 }
+
 .stub-tag {
-  font-family: var(--r-font-mono);
-  font-weight: 700;
-  font-size: 0.62rem;
-  letter-spacing: 0.18em;
-  color: var(--r-ink-soft);
+  font-size: 0.65rem;
+  font-weight: 900;
+  background: #ffcd00;
+  padding: 2px 6px;
+  border: 1.5px solid #111;
 }
-.stub-state { text-align: center; display: flex; flex-direction: column; gap: 6px; }
-.stub-icon { font-size: 2.4rem; line-height: 1; }
+
+.stub-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.stub-icon {
+  font-size: 1.8rem;
+}
+
 .stub-label {
-  font-family: var(--r-font-mono);
-  font-weight: 700;
-  font-size: 0.72rem;
+  font-size: 0.8rem;
+  font-weight: 800;
   text-transform: uppercase;
-  color: var(--r-ink-soft);
 }
 
-/* Skeleton */
-.skeleton {
-  height: 200px;
-  border: var(--r-bd);
-  box-shadow: var(--r-sh-2);
-  background: linear-gradient(100deg, #f3f1ea 30%, #fbf9f2 50%, #f3f1ea 70%);
-  background-size: 200% 100%;
-  animation: sk 1.2s ease-in-out infinite;
-}
-@keyframes sk { from { background-position: 200% 0; } to { background-position: -200% 0; } }
-
-/* Empty state */
+/* Empty states */
 .empty {
-  max-width: 460px;
-  margin: 40px auto;
-  padding: 40px 32px;
   text-align: center;
+  padding: 48px 24px;
+  border: 2px solid #111;
+  box-shadow: 4px 4px 0 #111;
+  background: white;
 }
-.empty-icon { font-size: 3.2rem; }
-.empty h2 { font-family: var(--r-font-display); margin: 12px 0 8px; }
-.empty p { color: var(--r-ink-soft); margin-bottom: 22px; }
-.empty .r-btn { margin: 0 auto; }
 
-@media (max-width: 460px) {
-  .ticket { grid-template-columns: 1fr; }
-  .perf { width: auto; height: 0; border-left: none; border-top: 3px dashed var(--r-ink); }
-  .notch { left: -9px; top: auto; }
-  .notch.top { top: -9px; left: -9px; }
-  .notch.bot { bottom: auto; top: -9px; left: auto; right: -9px; }
-  .ticket-stub { width: auto; flex-direction: row; }
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .ticket {
+    grid-template-columns: 1fr;
+  }
+  .perf {
+    display: none;
+  }
+  .ticket-stub {
+    border-left: none;
+    border-top: 2px dashed #111;
+    padding: 20px;
+  }
 }
 </style>

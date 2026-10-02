@@ -1,16 +1,19 @@
 <template>
   <div class="lang-switch">
-    <Button
-        icon="pi pi-globe"
-        class="lang-btn p-button-text"
-        @click="toggleLang"
-        :aria-label="`Cambiar idioma a ${isEs ? 'Inglés' : 'Español'}`"
-    />
+    <button
+      type="button"
+      class="lang-pill"
+      @click="toggleLang"
+      :aria-label="`Cambiar idioma a ${isEs ? 'Inglés' : 'Español'}`"
+      :title="`Cambiar idioma (actual: ${isEs ? 'Español' : 'English'})`"
+    >
+      <i class="pi pi-globe"></i>
+      <span class="lang-text">{{ isEs ? 'ES' : 'EN' }}</span>
+    </button>
   </div>
 </template>
 
 <script setup>
-import Button from 'primevue/button'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -21,35 +24,46 @@ function toggleLang() {
   const lang = isEs.value ? 'en' : 'es'
   locale.value = lang
   localStorage.setItem('nh-locale', lang)
+  localStorage.setItem('lang', lang)
 }
 </script>
 
 <style scoped>
-
-:deep(.lang-btn.p-button) {
-  width: 45px;
-  height: 45px;
+.lang-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 12px;
   border: 2px solid #333;
-  background-color: #f8f8f8;
-  padding: 3px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 20)
-}
-
-:deep(.lang-btn.p-button:hover) {
-  background-color: #fff7ed;
-  border-color: #f59e0b;
-  color: #f59e0b;
+  background-color: #ffcd00;
+  color: #111;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: inherit;
   cursor: pointer;
-  box-shadow: none;
+  box-shadow: 2px 2px 0 #333;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.2s ease;
+  user-select: none;
 }
 
-:deep(.lang-btn .p-button-icon) {
-  color: #333;
-  font-size: 1.5rem;
-  font-weight: 300;
+.lang-pill:hover {
+  background-color: #ffe066;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #333;
 }
 
-:deep(.lang-btn.p-button:hover .p-button-icon) {
-  color: #f59e0b;
+.lang-pill:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #333;
+}
+
+.lang-pill i {
+  font-size: 1rem;
+}
+
+.lang-text {
+  letter-spacing: 0.05em;
 }
 </style>
+
