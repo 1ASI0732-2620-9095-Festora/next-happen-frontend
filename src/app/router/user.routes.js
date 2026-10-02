@@ -13,11 +13,13 @@ import SignIn from '@/modules/iam/presentation/SignIn.vue'
 import Profile from '@/modules/iam/presentation/Profile.vue'
 import TermsAndConditions from '@/shared/presentation/TermsAndConditions.vue'
 import TwoFactorVerify from '@/modules/iam/presentation/TwoFactorVerify.vue'
+import UserNotifications from '@/modules/notifications/presentation/UserNotifications.vue'
 
 const routes = [
     { path: '/user/home', name: 'user-home', component: Home, meta: { requiresAuth: true, role: "User" } },
     { path: '/user/events', name: 'user-events', component: Events, meta: { requiresAuth: true, role: "User" } },
     { path: '/user/tickets', name: 'user-tickets', component: Tickets, meta: { requiresAuth: true, role: "User" } },
+    { path: '/user/notifications', name: 'user-notifications', component: UserNotifications, meta: { requiresAuth: true, role: "User" } },
     { path: '/user/checkout/success', name: 'user-checkout-success', component: CheckoutSuccess, meta: { requiresAuth: true, role: "User" } },
     { path: '/user/checkout/cancel', name: 'user-checkout-cancel', component: CheckoutCancel, meta: { requiresAuth: true, role: "User" } },
     { path: '/user/search', name: 'user-search', component: Search, meta: { requiresAuth: true, role: "User" } },

@@ -68,8 +68,21 @@ async function openDetail() {
 async function toggleSave() {
   const userId = localStorage.getItem('userId')
   const token = localStorage.getItem('token')
-  const eventId = props.event.id
-  if (!userId || !token) { alert('Debes iniciar sesión para guardar eventos.'); return }
+  const eventId = props.event.id || props.event.eventId
+
+  if (!eventId) return
+
+  // Si no está logeado (visitante), guardamos en local en modo invitado sin bloquear
+  if (!userId || !token) {
+    if (isSaved.value) {
+      savedStore.removeSaved(eventId)
+      isSaved.value = false
+    } else {
+      savedStore.addSaved(props.event)
+      isSaved.value = true
+    }
+    return
+  }
 
   const config = { headers: { Authorization: `Bearer ${token}` } }
   try {
