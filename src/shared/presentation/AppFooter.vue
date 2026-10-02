@@ -38,6 +38,24 @@
           <li><span class="footer-info">Lima Metropolitana, Perú</span></li>
         </ul>
       </div>
+
+      <div class="footer-links-group">
+        <h4 class="links-title">{{ t('footer.socialTitle') }}</h4>
+        <div class="social-icons">
+          <a href="https://instagram.com/nexthappen" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram de NextHappen" title="Instagram">
+            <i class="pi pi-instagram"></i>
+          </a>
+          <a href="https://facebook.com/nexthappen" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Facebook de NextHappen" title="Facebook">
+            <i class="pi pi-facebook"></i>
+          </a>
+          <a href="https://twitter.com/nexthappen" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="X Twitter de NextHappen" title="X (Twitter)">
+            <i class="pi pi-twitter"></i>
+          </a>
+          <a href="https://tiktok.com/@nexthappen" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="TikTok de NextHappen" title="TikTok">
+            <i class="pi pi-video"></i>
+          </a>
+        </div>
+      </div>
     </div>
 
     <div class="footer-bottom">
@@ -66,17 +84,53 @@ const { t } = useI18n()
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 2.5rem;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 2rem;
   padding-bottom: 2rem;
   border-bottom: 1px solid #333;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
   .footer-container {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+}
+
+.social-icons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 4px;
+  background-color: #262626;
+  border: 1.5px solid #404040;
+  color: #ffcd00;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+  background-color: #ffcd00;
+  color: #111;
+  border-color: #ffcd00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 205, 0, 0.25);
 }
 
 .footer-brand .brand-header {

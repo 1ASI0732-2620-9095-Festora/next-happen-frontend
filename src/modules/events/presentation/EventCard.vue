@@ -64,13 +64,21 @@ async function handleView() {
 
 async function toggleSave() {
   const userId = localStorage.getItem("userId")
-  const eventId = props.event.id
+  const eventId = props.event.id || props.event.eventId
 
-  if (!userId || !eventId) {
-    return console.log("userId que usa el front:", userId)
+  if (!eventId) return
+
+  // Si no está logeado (visitante), guardamos en local en modo invitado sin bloquear
+  if (!userId) {
+    if (isSaved.value) {
+      savedStore.removeSaved(eventId)
+      isSaved.value = false
+    } else {
+      savedStore.addSaved(props.event)
+      isSaved.value = true
+    }
+    return
   }
-
-  console.log("eventId:", eventId)
 
   try {
     const token = localStorage.getItem("token")
@@ -81,7 +89,6 @@ async function toggleSave() {
       await axios.delete(`${API_URL}/api/users/${userId}/saved-events/${eventId}`, config)
       savedStore.removeSaved(eventId)
       isSaved.value = false
-      console.log("Evento eliminado del backend")
       return
     }
 
@@ -89,7 +96,6 @@ async function toggleSave() {
     await axios.post(`${API_URL}/api/users/${userId}/saved-events/${eventId}`, {}, config)
     savedStore.addSaved(props.event)
     isSaved.value = true
-    console.log("Evento guardado en backend")
 
     await metricsApi.registerAction(eventId, "save")
   } catch (err) {

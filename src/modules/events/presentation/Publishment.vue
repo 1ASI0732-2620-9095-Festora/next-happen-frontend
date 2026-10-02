@@ -1,10 +1,42 @@
 <template>
   <div class="publishment-page" v-if="event">
-    <h1 class="title">{{ event.title }}</h1>
-    <p><strong>Organizador:</strong> {{ event.organizerName || event.organizer }}</p>
+    <div class="event-header-top">
+      <div class="header-badges">
+        <span class="cat-pill" v-if="event.category">{{ displayCategory }}</span>
+        <button class="translate-toggle-btn" @click="toggleTranslation">
+          {{ isTranslated ? $t('publishment.translateToEs') : $t('publishment.translateToEn') }}
+        </button>
+      </div>
+
+      <h1 class="title">{{ displayTitle }}</h1>
+
+      <div v-if="isTranslated" class="translation-note">
+        <i class="pi pi-sparkles"></i> {{ $t('publishment.translatedNotice') }}
+      </div>
+
+      <div class="header-meta">
+        <p class="organizer-info">
+          <strong>{{ $t('publishment.organizer') }}:</strong> {{ event.organizerName || event.organizer }}
+        </p>
+
+        <!-- Barra de compartir evento (US10) -->
+        <div class="share-actions">
+          <button class="share-btn share-native" @click="shareEvent" :title="$t('share.title')">
+            <i class="pi pi-share-alt"></i> <span>{{ $t('share.button') }}</span>
+          </button>
+          <button class="share-btn share-wa" @click="shareWhatsApp" :title="$t('share.whatsapp')">
+            <i class="pi pi-whatsapp"></i> <span>WhatsApp</span>
+          </button>
+          <button class="share-btn share-copy" @click="copyLink" :title="$t('share.copy')">
+            <i :class="copied ? 'pi pi-check' : 'pi pi-copy'"></i>
+            <span>{{ copied ? $t('share.copied') : $t('share.copy') }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ==== Carrusel ==== -->
-    <div class="carousel-container">
+    <div class="carousel-container" v-if="event.photos && event.photos.length">
       <div class="carousel" ref="carousel">
         <div
           v-for="(photo, i) in event.photos"
@@ -19,6 +51,7 @@
         v-if="event.photos && event.photos.length > 1"
         class="btn prev"
         @click="move(-1)"
+        aria-label="Anterior"
       >
         &#10094;
       </button>
@@ -26,62 +59,89 @@
         v-if="event.photos && event.photos.length > 1"
         class="btn next"
         @click="move(1)"
+        aria-label="Siguiente"
       >
         &#10095;
       </button>
     </div>
 
     <!-- ==== Información general ==== -->
-    <p class="desc">{{ event.description }}</p>
-    <p>
-  <strong>Fecha:</strong>
-  {{ event.startDate ? new Date(event.startDate).toLocaleDateString() : '' }}
-  -
-  {{ event.endDate ? new Date(event.endDate).toLocaleDateString() : '' }}
-</p>
-    <p><strong>Entradas disponibles:</strong> {{ event.quantity }}</p>
-    <p><strong>Precio unitario:</strong> S/. {{ event.price }}</p>
+    <div class="event-details-layout">
+      <div class="event-info-main">
+        <p class="desc">{{ displayDescription }}</p>
 
-    <!-- ==== Ubicación en el Mapa ==== -->
-    <div class="map-section" style="margin-top: 20px; margin-bottom: 20px;">
-      <h3 style="margin-bottom: 8px;">📍 Ubicación del Evento</h3>
-      <p v-if="event.address"><strong>Dirección:</strong> {{ event.address }}</p>
-      <div id="map-publishment" style="height: 300px; border: 2px solid #333; margin-top: 10px; background: #eee;"></div>
-    </div>
+        <div class="event-specs">
+          <div class="spec-item">
+            <i class="pi pi-calendar"></i>
+            <div>
+              <strong>{{ $t('publishment.dates') }}:</strong>
+              <span>
+                {{ event.startDate ? new Date(event.startDate).toLocaleDateString() : '' }}
+                <span v-if="event.endDate"> - {{ new Date(event.endDate).toLocaleDateString() }}</span>
+              </span>
+            </div>
+          </div>
+          <div class="spec-item">
+            <i class="pi pi-ticket"></i>
+            <div>
+              <strong>{{ $t('publishment.availableTickets') }}:</strong>
+              <span>{{ event.quantity }}</span>
+            </div>
+          </div>
+          <div class="spec-item">
+            <i class="pi pi-money-bill"></i>
+            <div>
+              <strong>{{ $t('publishment.unitPrice') }}:</strong>
+              <span>{{ event.price && event.price > 0 ? `S/. ${Number(event.price).toFixed(2)}` : $t('search.free') }}</span>
+            </div>
+          </div>
+        </div>
 
-    <!-- ==== Selector de cantidad ==== -->
-    <div class="ticket-section">
-
-      <label for="ticketCount"><strong>Cantidad de entradas:</strong></label>
-      <div class="ticket-input">
-        <button class="btn-qty" @click="decreaseQuantity">−</button>
-        <input
-          id="ticketCount"
-          type="number"
-          v-model.number="ticketCount"
-          min="1"
-          :max="event.quantity"
-        />
-        <button class="btn-qty" @click="increaseQuantity">+</button>
+        <!-- ==== Ubicación en el Mapa ==== -->
+        <div class="map-section">
+          <h3 class="section-subtitle">📍 {{ $t('publishment.locationTitle') }}</h3>
+          <p v-if="event.address" class="address-text">
+            <strong>{{ $t('publishment.address') }}:</strong> {{ event.address }}
+          </p>
+          <div id="map-publishment" class="publishment-map"></div>
+        </div>
       </div>
 
-      <p class="total">
-        <strong>Total:</strong> S/. {{ totalPrice.toFixed(2) }}
-      </p>
-    </div>
+      <!-- ==== Panel Lateral de Compra de Tickets ==== -->
+      <aside class="purchase-sidebar">
+        <div class="ticket-section">
+          <h3 class="ticket-section-title">Comprar Entradas</h3>
+          <label for="ticketCount" class="ticket-label"><strong>{{ $t('publishment.quantity') }}:</strong></label>
+          <div class="ticket-input">
+            <button class="btn-qty" @click="decreaseQuantity" aria-label="Disminuir">−</button>
+            <input
+              id="ticketCount"
+              type="number"
+              v-model.number="ticketCount"
+              min="1"
+              :max="event.quantity"
+            />
+            <button class="btn-qty" @click="increaseQuantity" aria-label="Aumentar">+</button>
+          </div>
 
-    <!-- ==== Botón de acción ==== -->
-    <div class="actions">
-      <pv-button
-        :label="buying ? 'Redirigiendo a Stripe...' : 'Comprar entrada'"
-        icon="pi pi-ticket"
-        class="btn-buy"
-        :disabled="buying || !event.quantity"
-        @click="buyTicket"
-      />
-    </div>
+          <p class="total">
+            <strong>{{ $t('publishment.total') }}:</strong> S/. {{ totalPrice.toFixed(2) }}
+          </p>
 
-    <p class="secure-note">🔒 Pago seguro procesado por Stripe.</p>
+          <div class="actions">
+            <pv-button
+              :label="buying ? $t('publishment.buyingBtn') : $t('publishment.buyBtn')"
+              icon="pi pi-ticket"
+              class="btn-buy"
+              :disabled="buying || !event.quantity"
+              @click="buyTicket"
+            />
+          </div>
+
+          <p class="secure-note">🔒 {{ $t('publishment.secureNote') }}</p>
+        </div>
+      </aside>
+    </div>
 
     <!-- ==== Reseñas del evento ==== -->
     <EventReviews :event-id="String(event.id)" />
@@ -100,11 +160,12 @@ const buying = ref(false)
 const route = useRoute()
 const event = ref(null)
 const carousel = ref(null)
+const copied = ref(false)
+const isTranslated = ref(false)
 let index = 0
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyA63CoEMd84d8bQBolX_gBrmksWBiev_vs";
-
+const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyA63CoEMd84d8bQBolX_gBrmksWBiev_vs"
 
 // ==== Tickets ====
 const ticketCount = ref(1)
@@ -118,89 +179,204 @@ function decreaseQuantity() {
   if (ticketCount.value > 1) ticketCount.value--
 }
 
-const parseLocation = (loc) => {
-  if (!loc) return { lat: -12.0464, lng: -77.0428, address: "" };
-  if (loc.includes('|')) {
-    const [coords, address] = loc.split('|');
-    const [lat, lng] = coords.split(',').map(Number);
-    return { lat, lng, address };
+// ==== Traducción Dinámica (US35) ====
+function toggleTranslation() {
+  isTranslated.value = !isTranslated.value
+}
+
+// Diccionario de traducción asistida para eventos culturales peruanos
+const spanishToEnglishDict = {
+  "Feria": "Fair",
+  "feria": "fair",
+  "Artesanías": "Crafts",
+  "artesanías": "crafts",
+  "Primavera": "Spring",
+  "Concierto": "Concert",
+  "concierto": "concert",
+  "Música": "Music",
+  "música": "music",
+  "Teatro": "Theater",
+  "teatro": "theater",
+  "Exposición": "Exhibition",
+  "exposición": "exhibition",
+  "Taller": "Workshop",
+  "taller": "workshop",
+  "Gastronomía": "Gastronomy",
+  "gastronómico": "gastronomic",
+  "Arte": "Art",
+  "arte": "art",
+  "independiente": "independent",
+  "cultural": "cultural",
+  "en vivo": "live",
+  "entrada": "ticket",
+  "general": "general",
+  "Todos los públicos": "All audiences",
+  "Disfruta": "Enjoy",
+  "Ven y descubre": "Come and discover",
+  "los mejores emprendedores": "the best entrepreneurs",
+  "comida local": "local food",
+  "música acústica": "acoustic music"
+}
+
+function translateText(text) {
+  if (!text) return ''
+  let translated = text
+  for (const [es, en] of Object.entries(spanishToEnglishDict)) {
+    const regex = new RegExp(`\\b${es}\\b`, 'gi')
+    translated = translated.replace(regex, en)
   }
-  return { lat: null, lng: null, address: loc };
-};
+  return translated
+}
+
+const displayTitle = computed(() => {
+  if (!event.value?.title) return ''
+  if (!isTranslated.value) return event.value.title
+  return translateText(event.value.title)
+})
+
+const displayDescription = computed(() => {
+  if (!event.value?.description) return ''
+  if (!isTranslated.value) return event.value.description
+  return translateText(event.value.description)
+})
+
+const displayCategory = computed(() => {
+  if (!event.value?.category) return ''
+  if (!isTranslated.value) return event.value.category
+  return translateText(event.value.category)
+})
+
+// ==== Compartir Evento (US10) ====
+async function shareEvent() {
+  const currentUrl = window.location.href
+  const title = event.value ? event.value.title : 'NextHappen'
+  const text = `¡Mira este evento en NextHappen! ${title}`
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title,
+        text,
+        url: currentUrl
+      })
+      return
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error sharing:', err)
+      }
+    }
+  }
+  // Fallback si no tiene navigator.share
+  copyLink()
+}
+
+function shareWhatsApp() {
+  const currentUrl = window.location.href
+  const title = event.value ? event.value.title : 'NextHappen'
+  const text = `¡Mira este evento en NextHappen! *${title}*: ${currentUrl}`
+  const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
+  window.open(waUrl, '_blank')
+}
+
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(window.location.href)
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2500)
+  } catch (err) {
+    console.error('Error copying to clipboard:', err)
+  }
+}
+
+// ==== Ubicación y Mapas ====
+const parseLocation = (loc) => {
+  if (!loc) return { lat: -12.0464, lng: -77.0428, address: "" }
+  if (loc.includes('|')) {
+    const [coords, address] = loc.split('|')
+    const [lat, lng] = coords.split(',').map(Number)
+    return { lat, lng, address }
+  }
+  return { lat: null, lng: null, address: loc }
+}
 
 const loadGoogleMapsScript = (callback) => {
   if (window.google?.maps) {
-    callback();
-    return;
+    callback()
+    return
   }
-  const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
-  script.async = true;
-  script.defer = true;
-  script.onload = callback;
-  document.head.appendChild(script);
-};
+  const script = document.createElement("script")
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`
+  script.async = true
+  script.defer = true
+  script.onload = callback
+  document.head.appendChild(script)
+}
 
 const initPublishmentMap = () => {
-  const element = document.getElementById("map-publishment");
-  if (!element || !event.value) return;
+  const element = document.getElementById("map-publishment")
+  if (!element || !event.value) return
 
-  const locData = parseLocation(event.value.location);
-  const geocoder = new google.maps.Geocoder();
+  const locData = parseLocation(event.value.location)
+  const geocoder = new google.maps.Geocoder()
 
-  let center = { lat: -12.0464, lng: -77.0428 };
-  let zoom = 11;
+  let center = { lat: -12.0464, lng: -77.0428 }
+  let zoom = 11
 
   if (locData.lat && locData.lng) {
-    center = { lat: locData.lat, lng: locData.lng };
-    zoom = 16;
+    center = { lat: locData.lat, lng: locData.lng }
+    zoom = 16
   }
 
   const map = new google.maps.Map(element, {
     center: center,
     zoom: zoom
-  });
+  })
 
   if (locData.lat && locData.lng) {
     new google.maps.Marker({
       position: center,
       map: map
-    });
+    })
   } else if (locData.address || event.value.address) {
-    const addressToGeocode = locData.address || event.value.address;
+    const addressToGeocode = locData.address || event.value.address
     geocoder.geocode({ address: addressToGeocode }, (results, status) => {
       if (status === "OK" && results.length > 0) {
-        const loc = results[0].geometry.location;
-        map.setCenter(loc);
-        map.setZoom(16);
+        const loc = results[0].geometry.location
+        map.setCenter(loc)
+        map.setZoom(16)
         new google.maps.Marker({
           position: loc,
           map: map
-        });
+        })
       }
-    });
+    })
   }
-};
+}
 
 onMounted(async () => {
-  const res = await axios.get(`${API_URL}/api/events/${route.params.id}`)
-  event.value = res.data
+  try {
+    const res = await axios.get(`${API_URL}/api/events/${route.params.id}`)
+    event.value = res.data
 
-  // Fetch organizer name
-  if (event.value.organizer) {
-    try {
-      const orgRes = await axios.get(`${API_URL}/api/users/${event.value.organizer}`)
-      event.value.organizerName = orgRes.data.fullName
-    } catch (e) {
-      event.value.organizerName = event.value.organizer
+    if (event.value.organizer) {
+      try {
+        const orgRes = await axios.get(`${API_URL}/api/users/${event.value.organizer}`)
+        event.value.organizerName = orgRes.data.fullName
+      } catch (e) {
+        event.value.organizerName = event.value.organizer
+      }
     }
-  }
 
-  await nextTick()
-  applyTransform()
-  loadGoogleMapsScript(() => {
-    initPublishmentMap();
-  });
+    await nextTick()
+    applyTransform()
+    loadGoogleMapsScript(() => {
+      initPublishmentMap()
+    })
+  } catch (error) {
+    console.error('Error cargando publicación:', error)
+  }
 })
 
 function getCardWidth() {
@@ -237,62 +413,172 @@ function move(direction) {
 }
 
 async function buyTicket() {
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId")
+  const token = localStorage.getItem("token")
 
   if (!userId || !token) {
-    alert("Debes iniciar sesión para comprar.");
-    return;
+    alert("Debes iniciar sesión para comprar.")
+    return
   }
 
-  buying.value = true;
+  buying.value = true
   try {
-    // Crea la sesión de Stripe Checkout y redirige a la pasarela de pago.
-    // Las entradas SOLO se emiten cuando Stripe confirma el pago (webhook).
     const { checkoutUrl } = await paymentsApi.createCheckout(
       event.value.id,
       ticketCount.value
-    );
-    window.location.href = checkoutUrl;
+    )
+    window.location.href = checkoutUrl
   } catch (error) {
-    console.error("Error al iniciar el pago:", error);
+    console.error("Error al iniciar el pago:", error)
     const msg = error?.response?.data?.error ||
-      "Ocurrió un error al procesar la compra. Intenta de nuevo.";
-    alert(msg);
-    buying.value = false;
+      "Ocurrió un error al procesar la compra. Intenta de nuevo."
+    alert(msg)
+    buying.value = false
   }
 }
 </script>
 
 <style scoped>
-.title {
-  text-align: center;
-  font-family: var(--r-font-display, 'Space Grotesk', sans-serif);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  text-wrap: balance;
+.publishment-page {
+  max-width: 1120px;
+  margin: 32px auto;
+  padding: 0 20px;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
 }
 
-/* ==== Carrusel con separación ==== */
+.event-header-top {
+  margin-bottom: 24px;
+}
+
+.header-badges {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cat-pill {
+  background: #ffcd00;
+  color: #111;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border: 2px solid #111;
+  box-shadow: 2px 2px 0 #111;
+  text-transform: uppercase;
+}
+
+.translate-toggle-btn {
+  background: white;
+  border: 2px solid #111;
+  box-shadow: 2px 2px 0 #111;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.translate-toggle-btn:hover {
+  background: #ffcd00;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #111;
+}
+
+.title {
+  text-align: left;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  margin: 0 0 10px 0;
+  color: #111;
+}
+
+.translation-note {
+  font-size: 0.85rem;
+  color: #d97706;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.organizer-info {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #333;
+}
+
+/* Barra de compartir */
+.share-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 2px solid #111;
+  box-shadow: 2px 2px 0 #111;
+  background: white;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.share-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #111;
+}
+
+.share-wa:hover {
+  background: #25D366;
+  color: white;
+}
+
+.share-copy.active, .share-copy:hover {
+  background: #ffcd00;
+}
+
+/* ==== Carrusel ==== */
 .carousel-container {
   position: relative;
   width: 100%;
   overflow: hidden;
+  margin: 20px 0 32px 0;
+  border: 2px solid #111;
+  box-shadow: 4px 4px 0 #111;
+  background: #faf8f5;
+  padding: 12px;
 }
 
 .carousel {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   transition: transform 0.4s ease;
 }
 
 .carousel-card {
-  flex: 0 0 calc(33.33% - 20px);
+  flex: 0 0 calc(33.33% - 12px);
   background: #fff;
-  border: 2px solid #333;
-  border-radius: 0;
+  border: 2px solid #111;
   overflow: hidden;
+  height: 240px;
 }
 
 .carousel-card img {
@@ -302,139 +588,227 @@ async function buyTicket() {
   display: block;
 }
 
-/* Botones laterales */
+/* Botones laterales del carrusel */
 .btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   background: #ffcd00;
-  border: 2px solid #333;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2);
-  color: #333;
-  font-size: 1.5rem;
+  border: 2px solid #111;
+  box-shadow: 3px 3px 0 #111;
+  color: #111;
+  font-size: 1.3rem;
+  font-weight: 800;
   cursor: pointer;
   z-index: 5;
-  width: 45px;
-  height: 45px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
 }
 
 .btn:hover {
-  background-color: #fff7ed;
-  border-color: #f59e0b;
-  color: #f59e0b;
-  cursor: pointer;
-  box-shadow: none;
+  background-color: white;
+  transform: translateY(-50%) translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #111;
 }
 
-.prev {
-   left: 1.25rem;
-}
+.prev { left: 1rem; }
+.next { right: 1rem; }
 
-.next {
-   right: 1.25rem;
-}
-
-/* ==== Resto ==== */
-.publishment-page {
-  margin: 40px;
-  font-family: "Inter", sans-serif;
+/* Layout principal: contenido y sidebar */
+.event-details-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 32px;
+  align-items: start;
 }
 
 .desc {
-  font-size: 1.05rem;
-  margin-bottom: 16px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #222;
+  margin-top: 0;
+  margin-bottom: 24px;
 }
 
-.actions {
-  margin-top: 24px;
+.event-specs {
   display: flex;
-  justify-content: flex-end;
-  padding-right: 20px; /* 🔹 Opcional: separación lateral */
+  flex-direction: column;
+  gap: 12px;
+  background: #fbf9f4;
+  border: 2px solid #111;
+  padding: 16px 20px;
+  margin-bottom: 28px;
 }
 
-.btn-buy {
+.spec-item {
+  display: flex;
   align-items: center;
-  background-color: #ffcd00;
-  border: 2px solid #333;
-  padding: 8px 18px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2);
+  gap: 12px;
+  font-size: 0.95rem;
 }
 
-:deep(.btn-buy:hover) {
-  border: 2px solid #f59e0b;
-  color: #f59e0b;
-  background-color: #ffffff;
-  box-shadow: none;
+.spec-item i {
+  font-size: 1.2rem;
+  color: #111;
 }
 
-.secure-note {
-  text-align: right;
-  padding-right: 20px;
-  margin-top: 8px;
-  color: #555;
+.section-subtitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.address-text {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+
+.publishment-map {
+  height: 320px;
+  border: 2px solid #111;
+  box-shadow: 3px 3px 0 #111;
+  background: #eee;
+}
+
+/* Purchase Sidebar */
+.purchase-sidebar {
+  position: sticky;
+  top: 90px;
+}
+
+.ticket-section {
+  border: 2px solid #111;
+  box-shadow: 4px 4px 0 #111;
+  background: #fffbe8;
+  padding: 24px;
+}
+
+.ticket-section-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-top: 0;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #111;
+  padding-bottom: 8px;
+}
+
+.ticket-label {
+  display: block;
+  margin-bottom: 6px;
   font-size: 0.9rem;
 }
 
 .ticket-input {
   display: flex;
   align-items: center;
-  margin-top: 8px;
+  margin-bottom: 16px;
 }
 
 .ticket-input input {
-  width: 60px;
+  width: 70px;
   text-align: center;
-  border: 2px solid #333;
-  height: 33px;
-  font-weight: 600;
+  border: 2px solid #111;
+  height: 38px;
+  font-weight: 800;
+  font-size: 1rem;
   margin: 0 8px;
+  outline: none;
 }
 
 .btn-qty {
   background: #ffcd00;
-  border: 2px solid #333;
-  font-size: 1.1rem;
-  width: 36px;
-  height: 36px;
+  border: 2px solid #111;
+  font-size: 1.2rem;
+  font-weight: 800;
+  width: 38px;
+  height: 38px;
   cursor: pointer;
-  gap: 2px;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 2);
+  box-shadow: 2px 2px 0 #111;
+  transition: all 0.1s ease;
 }
 
 .btn-qty:hover {
-  background: #fff7ed;
-  border-color: #f59e0b;
-  color: #f59e0b;
-  box-shadow: none;
+  background: white;
+  transform: translate(-1px, -1px);
 }
 
-.ticket-section {
-  border: var(--r-bd, 2px solid #1b1a17);
-  box-shadow: var(--r-sh-2, 4px 4px 0 #1b1a17);
-  background: var(--r-surface-2, #fffbe8);
-  padding: 18px 20px;
-  margin-top: 24px;
-  max-width: 340px;
-}
 .total {
-  margin-top: 1rem;
-  font-size: 1.15rem;
-  font-weight: 700;
-  font-family: var(--r-font-mono, 'Space Mono', monospace);
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 16px 0;
+  color: #111;
 }
 
-/* 📱 Responsivo */
-@media (max-width: 1000px) {
+.actions {
+  margin-top: 16px;
+}
+
+.btn-buy {
+  width: 100%;
+  justify-content: center;
+  background-color: #ffcd00;
+  border: 2px solid #111;
+  padding: 12px 18px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #111;
+  color: #111;
+}
+
+:deep(.btn-buy:hover) {
+  background-color: #111 !important;
+  color: #ffcd00 !important;
+  border-color: #111 !important;
+}
+
+.secure-note {
+  text-align: center;
+  margin-top: 14px;
+  color: #666;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .event-details-layout {
+    grid-template-columns: 1fr;
+  }
+
   .carousel-card {
-    flex: 0 0 calc(50% - 20px);
+    flex: 0 0 calc(50% - 12px);
+  }
+
+  .purchase-sidebar {
+    position: static;
+    margin-top: 24px;
   }
 }
 
 @media (max-width: 600px) {
+  .publishment-page {
+    margin: 20px auto;
+    padding: 0 14px;
+  }
+
   .carousel-card {
     flex: 0 0 100%;
+  }
+
+  .header-badges {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .header-meta {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>
