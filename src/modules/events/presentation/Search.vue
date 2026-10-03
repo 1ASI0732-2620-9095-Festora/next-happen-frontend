@@ -135,10 +135,9 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
-import axios from "axios";
+import http from "@/shared/infrastructure/http.js";
 import EventCard from "@/modules/events/presentation/EventCard.vue";
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "/proxy" : "http://localhost:5000");
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyA63CoEMd84d8bQBolX_gBrmksWBiev_vs";
 
 const query = ref("");
@@ -216,7 +215,7 @@ const loadGoogleMapsScript = (callback) => {
 // Cargar eventos del backend
 const loadEvents = async () => {
   try {
-    const res = await axios.get(`${API_URL}/api/events`);
+    const res = await http.get('/api/events');
     events.value = res.data.map(e => {
       const image = e.photos && e.photos.length > 0 
         ? e.photos[0] 

@@ -26,10 +26,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import axios from 'axios'
+import http from '@/shared/infrastructure/http.js'
 import EventCard from '@/modules/events/presentation/EventCard.vue'
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
 const savedEvents = ref([])
 
 const { t } = useI18n()
@@ -44,17 +43,14 @@ onMounted(async () => {
 
   try {
     // 1️⃣ Obtener lista de guardados (solo userId + eventId)
-    const token = localStorage.getItem("token")
-    const res = await axios.get(`${API_URL}/api/users/${userId}/saved-events`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const res = await http.get(`/api/users/${userId}/saved-events`)
     const savedList = res.data
 
     // 2️⃣ Traer el evento completo de cada guardado
     const fullEvents = await Promise.all(
       savedList.map(async (s) => {
         try {
-          const eventRes = await axios.get(`${API_URL}/api/events/${s.eventId}`)
+          const eventRes = await http.get(`/api/events/${s.eventId}`)
           const ev = eventRes.data
 
           // 3️⃣ Normalizar imagen (Cloudinary)

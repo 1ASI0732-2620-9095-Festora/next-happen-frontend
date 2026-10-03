@@ -177,7 +177,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import http from '@/shared/infrastructure/http.js'
 import { useRouter } from 'vue-router'
 import { PaymentsApi } from '@/modules/tickets/infrastructure/payments-api.js'
 
@@ -187,8 +187,6 @@ const tickets = ref([])
 const loading = ref(true)
 const refunding = ref(null)
 const currentTab = ref('active') // 'active' | 'history'
-
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
 
 const activeTickets = computed(() => {
   return tickets.value.filter(t => t.status === 'Active')
@@ -229,7 +227,7 @@ async function load() {
       raw.map(async (t) => {
         let title = 'Evento'
         try {
-          const eventRes = await axios.get(`${API_URL}/api/events/${t.eventId}`)
+          const eventRes = await http.get(`/api/events/${t.eventId}`)
           title = eventRes.data.title
         } catch {
           // Evento eliminado o inaccesible; mantenemos el título por defecto.
