@@ -23,4 +23,20 @@ export default defineConfig({
     build: {
         outDir: "dist",
     },
+    server: {
+        port: 5173,
+        proxy: {
+            "/api": {
+                target: "https://next-happen-backend.onrender.com",
+                changeOrigin: true,
+                secure: false,
+            },
+            "/proxy": {
+                target: "https://next-happen-backend.onrender.com",
+                changeOrigin: true,
+                secure: false,
+                rewrite: (path) => path.replace(/^\/proxy/, ""),
+            },
+        },
+    },
 });
