@@ -24,7 +24,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import http from '@/shared/infrastructure/http.js'
 import { useRouter } from 'vue-router'
 import { useSavedStore } from '@/modules/events/application/saved.store.js'
 import { MetricsApi } from '@/modules/metrics/infrastructure/metrics-api.js'
@@ -34,7 +34,6 @@ const props = defineProps({ event: { type: Object, required: true } })
 const router = useRouter()
 const savedStore = useSavedStore()
 const metricsApi = new MetricsApi()
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
 
 const isSaved = ref(false)
 
@@ -84,14 +83,13 @@ async function toggleSave() {
     return
   }
 
-  const config = { headers: { Authorization: `Bearer ${token}` } }
   try {
     if (isSaved.value) {
-      await axios.delete(`${API_URL}/api/users/${userId}/saved-events/${eventId}`, config)
+      await http.delete(`/api/users/${userId}/saved-events/${eventId}`)
       savedStore.removeSaved(eventId)
       isSaved.value = false
     } else {
-      await axios.post(`${API_URL}/api/users/${userId}/saved-events/${eventId}`, {}, config)
+      await http.post(`/api/users/${userId}/saved-events/${eventId}`)
       savedStore.addSaved(props.event)
       isSaved.value = true
 

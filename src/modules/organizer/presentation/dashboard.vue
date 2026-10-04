@@ -92,13 +92,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import http from '@/shared/infrastructure/http.js'
 import { useRouter } from 'vue-router'
 import { SalesApi } from '@/modules/tickets/infrastructure/sales-api.js'
 
 const router = useRouter()
 const salesApi = new SalesApi()
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
 
 const name = localStorage.getItem('userName') || ''
 const loading = ref(true)
@@ -125,7 +124,7 @@ onMounted(async () => {
   try {
     const organizerId = localStorage.getItem('userId')
     const organizerName = localStorage.getItem('userName')
-    const { data: all } = await axios.get(`${API_URL}/api/events`)
+    const { data: all } = await http.get('/api/events')
     myEvents.value = all.filter(ev => ev.organizer === organizerId || ev.organizer === organizerName)
 
     if (myEvents.value.length) {

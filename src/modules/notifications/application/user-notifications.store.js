@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
+import http from '@/shared/infrastructure/http.js'
 
 export const useUserNotificationsStore = defineStore('userNotifications', () => {
   const notifications = ref([])
-  const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
 
   const getStorageKey = () => {
     const userId = localStorage.getItem('userId') || 'guest'
@@ -59,7 +58,7 @@ export const useUserNotificationsStore = defineStore('userNotifications', () => 
 
     try {
       // 1. Cargar eventos públicos
-      const eventsRes = await axios.get(`${API_URL}/api/events/public`)
+      const eventsRes = await http.get('/api/events/public')
       const events = eventsRes.data || []
       const eventMap = new Map(events.map(e => [e.id, e]))
 
@@ -85,9 +84,7 @@ export const useUserNotificationsStore = defineStore('userNotifications', () => 
 
       // 3. Recordatorios por tickets comprados (US30 Recordatorios)
       if (userId && token) {
-        const ticketsRes = await axios.get(`${API_URL}/api/users/${userId}/tickets`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        const ticketsRes = await http.get(`/api/users/${userId}/tickets`)
         const tickets = ticketsRes.data || []
         const activeTickets = tickets.filter(t => t.status === 'Active')
 
