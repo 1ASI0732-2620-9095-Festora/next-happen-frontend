@@ -151,7 +151,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
+import http from '@/shared/infrastructure/http.js'
 import { PaymentsApi } from '@/modules/tickets/infrastructure/payments-api.js'
 import EventReviews from '@/modules/events/presentation/EventReviews.vue'
 
@@ -164,7 +164,6 @@ const copied = ref(false)
 const isTranslated = ref(false)
 let index = 0
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyA63CoEMd84d8bQBolX_gBrmksWBiev_vs"
 
 // ==== Tickets ====
@@ -357,12 +356,12 @@ const initPublishmentMap = () => {
 
 onMounted(async () => {
   try {
-    const res = await axios.get(`${API_URL}/api/events/${route.params.id}`)
+    const res = await http.get(`/api/events/${route.params.id}`)
     event.value = res.data
 
     if (event.value.organizer) {
       try {
-        const orgRes = await axios.get(`${API_URL}/api/users/${event.value.organizer}`)
+        const orgRes = await http.get(`/api/users/${event.value.organizer}`)
         event.value.organizerName = orgRes.data.fullName
       } catch (e) {
         event.value.organizerName = event.value.organizer

@@ -130,11 +130,9 @@
 <script setup>
 import EventPoster from '@/modules/events/presentation/EventPoster.vue'
 import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import http from '@/shared/infrastructure/http.js'
 import { useSavedStore } from '@/modules/events/application/saved.store.js'
 import { useUserNotificationsStore } from '@/modules/notifications/application/user-notifications.store.js'
-
-const API = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/proxy' : 'http://localhost:5000')
 const savedStore = useSavedStore()
 const notificationsStore = useUserNotificationsStore()
 
@@ -246,7 +244,7 @@ onMounted(async () => {
   }
 
   try {
-    const res = await axios.get(`${API}/api/events/public`)
+    const res = await http.get('/api/events/public')
     events.value = res.data.map(e => ({
       ...e,
       image: e.photos?.length ? e.photos[0] : 'https://placehold.co/400x260?text=NextHappen'
