@@ -424,7 +424,9 @@ async function buyTicket() {
   try {
     const { checkoutUrl } = await paymentsApi.createCheckout(
       event.value.id,
-      ticketCount.value
+      ticketCount.value,
+      `${window.location.origin}/user/checkout/success`,
+      `${window.location.origin}/user/checkout/cancel`
     )
     window.location.href = checkoutUrl
   } catch (error) {

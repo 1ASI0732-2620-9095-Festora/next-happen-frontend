@@ -9,8 +9,16 @@ export class PaymentsApi {
      * Inicia el checkout de Stripe. Devuelve { orderId, checkoutUrl }.
      * El componente debe redirigir a checkoutUrl.
      */
-    async createCheckout(eventId, quantity) {
-        const { data } = await http.post('/api/payments/checkout', { eventId, quantity })
+    async createCheckout(eventId, quantity, successUrl, cancelUrl) {
+        const payload = { 
+            eventId, 
+            quantity,
+            successUrl,
+            cancelUrl,
+            success_url: successUrl,
+            cancel_url: cancelUrl
+        }
+        const { data } = await http.post('/api/payments/checkout', payload)
         return data
     }
 
