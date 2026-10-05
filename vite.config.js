@@ -27,12 +27,12 @@ export default defineConfig({
         port: 5173,
         proxy: {
             "/api": {
-                target: "https://next-happen-backend.onrender.com",
+                target: "https://next-happen-backend-hbts.onrender.com",
                 changeOrigin: true,
                 secure: false,
             },
             "/proxy": {
-                target: "https://next-happen-backend.onrender.com",
+                target: "https://next-happen-backend-hbts.onrender.com",
                 changeOrigin: true,
                 secure: false,
                 rewrite: (path) => path.replace(/^\/proxy/, ""),

@@ -73,6 +73,36 @@
           </small>
         </div>
 
+        <!-- Phone -->
+        <div class="form-group">
+          <label for="phone">Teléfono (Phone)</label>
+          <div class="phone-input-group">
+            <select v-model="countryCode" class="country-select" aria-label="Country Code">
+              <option value="+51">🇵🇪 +51</option>
+              <option value="+52">🇲🇽 +52</option>
+              <option value="+54">🇦🇷 +54</option>
+              <option value="+56">🇨🇱 +56</option>
+              <option value="+57">🇨🇴 +57</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+34">🇪🇸 +34</option>
+            </select>
+            <input
+              id="phone"
+              v-model.trim="phone"
+              type="tel"
+              placeholder="987654321"
+              :class="{ 'input-invalid': phoneTouched && !phone }"
+              :aria-invalid="!!(phoneTouched && !phone)"
+              aria-describedby="phone-error"
+              @blur="phoneTouched = true"
+              required
+            />
+          </div>
+          <small v-if="phoneTouched && !phone" id="phone-error" class="field-error" role="alert">
+            {{ currentLang === 'es' ? 'Teléfono es requerido' : 'Phone is required' }}
+          </small>
+        </div>
+
         <!-- Password -->
         <div class="form-group">
           <label for="password">{{ t('signup.password') }}</label>
@@ -184,6 +214,8 @@ const {
 
 const name = ref("")
 const email = ref("")
+const countryCode = ref("+51")
+const phone = ref("")
 const password = ref("")
 const confirmPassword = ref("")
 const userType = ref("")
@@ -196,6 +228,7 @@ const currentLang = ref(locale.value)
 // Touched state trackers for accessible UX
 const nameTouched = ref(false)
 const emailTouched = ref(false)
+const phoneTouched = ref(false)
 const passwordTouched = ref(false)
 const confirmPasswordTouched = ref(false)
 
@@ -225,6 +258,7 @@ const isFormInvalid = computed(() => {
     !acceptTerms.value ||
     !nameResult.value.valid ||
     !emailResult.value.valid ||
+    !phone.value ||
     !passwordResult.value.valid ||
     !confirmPasswordResult.value.valid
   )
@@ -263,9 +297,11 @@ async function registerUser() {
   loading.value = true;
 
   try {
+    const fullPhone = countryCode.value + phone.value.trim();
     const payload = {
       FullName: name.value.trim(),       
       Email: email.value.trim(),         
+      Phone: fullPhone,
       Password: password.value,   
       Role: userType.value === "user" ? "User" : "Organizer",
       TermsAccepted: acceptTerms.value,
@@ -282,7 +318,6 @@ async function registerUser() {
     });
 
     const token = loginRes.data?.token || loginRes.data?.accessToken || loginRes.data?.Token;
-    console.log("Token recibido del backend:", token);
     
     if (!token) {
         throw new Error("El backend no devolvió un token válido.");
@@ -292,30 +327,23 @@ async function registerUser() {
     try {
         decoded = jwtDecode(token);
     } catch (e) {
-        throw new Error("Error decodificando el JWT. Token crudo: " + token);
+        throw new Error("Error decodificando el JWT.");
     }
 
     const userId = decoded.id || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
     const resolvedRole = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.Role;
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("userId", userId);
-    localStorage.setItem("userName", name.value.trim());
-    localStorage.setItem("userEmail", email.value.trim());
-    localStorage.setItem("userType", resolvedRole);
-    localStorage.setItem("role", resolvedRole);
-    localStorage.setItem("user", JSON.stringify({
-      id: userId,
-      name: name.value.trim(),
-      email: email.value.trim(),
-      role: resolvedRole
+    // SMS 2FA intercept
+    sessionStorage.setItem('nh_pending_auth', JSON.stringify({
+      token,
+      userId,
+      role: resolvedRole,
+      userName: name.value.trim(),
+      userEmail: email.value.trim(),
+      userPhone: fullPhone
     }));
-
-    loading.value = false;
-
-    // 3. Redirigir según el rol
-    if (resolvedRole === "User") router.push("/user/home");
-    else router.push("/org/dashboard");
+    sessionStorage.setItem('nh_pending_phone', fullPhone);
+    router.push('/verify-2fa');
 
   } catch (err) {
     console.error(err);
@@ -443,7 +471,28 @@ async function registerUser() {
   transition: box-shadow 0.2s ease;
 }
 
-.form-group input:focus {
+.phone-input-group {
+  display: flex;
+  width: 94%;
+  gap: 0.5rem;
+}
+
+.phone-input-group input {
+  flex: 1;
+  width: auto;
+}
+
+.country-select {
+  padding: 0.7rem 0.5rem;
+  border: 2px solid #000;
+  background: #fff;
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.country-select:focus, .form-group input:focus {
   box-shadow: 3px 3px 0 rgba(0, 0, 0, 1);
 }
 

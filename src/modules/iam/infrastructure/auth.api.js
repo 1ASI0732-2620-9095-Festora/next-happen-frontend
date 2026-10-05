@@ -11,17 +11,17 @@ export async function loginUserService(payload) {
 }
 
 /**
- * Request a 6-digit Email OTP verification code
+ * Request a 6-digit SMS verification code
  */
-export async function sendTwoFactorCode(email) {
+export async function sendTwoFactorCode(phone) {
   try {
-    return await http.post(`${AUTH_PATH}/2fa/send`, { email });
+    return await http.post(`/api/v1/notifications/send-verification-code`, { phone });
   } catch (err) {
     // Graceful fallback for mock / development before backend migration
     const simulatedCode = Math.floor(100000 + Math.random() * 900000).toString();
     sessionStorage.setItem('nh_2fa_expected_code', simulatedCode);
     sessionStorage.setItem('nh_2fa_generated_at', Date.now().toString());
-    console.info(`%c[NextHappen 2FA Security]%c Verification code for ${email}: %c${simulatedCode}`, 
+    console.info(`%c[NextHappen 2FA Security]%c SMS Verification code for ${phone}: %c${simulatedCode}`, 
       'background:#ffcd00;color:#000;font-weight:bold;padding:2px 6px;border-radius:3px;',
       'color:#333;font-weight:bold;',
       'background:#000;color:#fff;font-weight:bold;padding:2px 8px;border-radius:3px;'
@@ -31,11 +31,11 @@ export async function sendTwoFactorCode(email) {
 }
 
 /**
- * Verify the 6-digit Email OTP verification code
+ * Verify the 6-digit SMS verification code
  */
-export async function verifyTwoFactorCode(email, code) {
+export async function verifyTwoFactorCode(phone, code) {
   try {
-    return await http.post(`${AUTH_PATH}/2fa/verify`, { email, code });
+    return await http.post(`/api/v1/notifications/verify-code`, { phone, code });
   } catch (err) {
     // Check fallback code
     const expected = sessionStorage.getItem('nh_2fa_expected_code') || '123456';

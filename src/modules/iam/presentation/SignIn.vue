@@ -171,9 +171,10 @@ async function loginUser() {
     const userId = res.data?.userId || decoded.id || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
     const userName = res.data?.fullName || decoded.name || decoded.unique_name || decoded.FullName || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || (userRole === "User" ? "User" : "Organizer");
     const userEmail = res.data?.email || decoded.email || decoded.Email || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] || email.value.trim();
+    const userPhone = res.data?.phone || "+51902839089";
 
-    // Security Barrier: 2FA Email OTP Verification (Active by default)
-    const is2faEnabled = localStorage.getItem(`nh_2fa_${userEmail}`) !== 'false';
+    // Security Barrier: 2FA SMS Verification
+    const is2faEnabled = true;
 
     if (is2faEnabled) {
       sessionStorage.setItem('nh_pending_auth', JSON.stringify({
@@ -181,9 +182,10 @@ async function loginUser() {
         userId,
         role: userRole,
         userName,
-        userEmail
+        userEmail,
+        userPhone
       }));
-      sessionStorage.setItem('nh_pending_email', userEmail);
+      sessionStorage.setItem('nh_pending_phone', userPhone || '');
       router.push('/verify-2fa');
       return;
     }

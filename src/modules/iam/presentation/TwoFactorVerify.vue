@@ -18,8 +18,8 @@
       </p>
 
       <div class="email-badge">
-        <i class="pi pi-envelope"></i>
-        <span>{{ userEmail || 'user@nexthappen.pe' }}</span>
+        <i class="pi pi-phone"></i>
+        <span>{{ userPhone || '+51 902839089 (Trial)' }}</span>
       </div>
 
       <!-- Demo helper banner for evaluation/testing -->
@@ -101,7 +101,7 @@ const resending = ref(false)
 const error = ref('')
 const countdown = ref(60)
 const demoCode = ref('')
-const userEmail = ref('')
+const userPhone = ref('')
 const otpInput = ref(null)
 const currentLang = ref(locale.value)
 
@@ -139,7 +139,7 @@ async function handleVerify() {
   loading.value = true
 
   try {
-    await verifyTwoFactorCode(userEmail.value, code.value)
+    await verifyTwoFactorCode(userPhone.value, code.value)
 
     // Retrieve pending authentication payload
     const pendingRaw = sessionStorage.getItem('nh_pending_auth')
@@ -158,7 +158,7 @@ async function handleVerify() {
       }))
 
       sessionStorage.removeItem('nh_pending_auth')
-      sessionStorage.removeItem('nh_pending_email')
+      sessionStorage.removeItem('nh_pending_phone')
       sessionStorage.removeItem('nh_2fa_expected_code')
 
       if (pending.role === 'User') {
@@ -180,7 +180,7 @@ async function handleResend() {
   resending.value = true
   error.value = ''
   try {
-    const res = await sendTwoFactorCode(userEmail.value)
+    const res = await sendTwoFactorCode(userPhone.value)
     const receivedCode = res.data?.debugCode || res.data?.code
     if (receivedCode) {
       demoCode.value = receivedCode
@@ -195,25 +195,25 @@ async function handleResend() {
 
 function cancelAuth() {
   sessionStorage.removeItem('nh_pending_auth')
-  sessionStorage.removeItem('nh_pending_email')
+  sessionStorage.removeItem('nh_pending_phone')
   sessionStorage.removeItem('nh_2fa_expected_code')
   router.push('/signin')
 }
 
 onMounted(async () => {
   const pendingRaw = sessionStorage.getItem('nh_pending_auth')
-  const emailStored = sessionStorage.getItem('nh_pending_email')
+  const phoneStored = sessionStorage.getItem('nh_pending_phone')
 
-  if (!pendingRaw && !emailStored) {
+  if (!pendingRaw && !phoneStored) {
     // If accessed directly without authentication challenge, redirect
     router.replace('/signin')
     return
   }
 
-  userEmail.value = emailStored || (pendingRaw ? JSON.parse(pendingRaw).userEmail : '')
+  userPhone.value = phoneStored || (pendingRaw ? JSON.parse(pendingRaw).userPhone : '')
 
   // Generate / request code
-  const res = await sendTwoFactorCode(userEmail.value)
+  const res = await sendTwoFactorCode(userPhone.value)
   const receivedCode = res.data?.debugCode || res.data?.code
   if (receivedCode) {
     demoCode.value = receivedCode
