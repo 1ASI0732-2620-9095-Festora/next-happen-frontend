@@ -66,8 +66,8 @@ async function confirm() {
 
   try {
     const res = await paymentsApi.confirmCheckout(sessionId)
-    if (res.paid) {
-      quantity.value = res.quantity
+    if (res.paid || res.status === 'Paid') {
+      quantity.value = res.quantity || res.Quantity || 0
       state.value = 'paid'
       // Llevar a Mis Entradas automáticamente tras un breve confirmación.
       redirectTimer = setTimeout(goToTickets, 2200)

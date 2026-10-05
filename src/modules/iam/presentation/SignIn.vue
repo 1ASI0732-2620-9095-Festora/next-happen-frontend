@@ -174,7 +174,7 @@ async function loginUser() {
     const userPhone = res.data?.phone || "+51902839089";
 
     // Security Barrier: 2FA SMS Verification
-    const is2faEnabled = true;
+    const is2faEnabled = false; // Disabled for login as requested
 
     if (is2faEnabled) {
       sessionStorage.setItem('nh_pending_auth', JSON.stringify({
